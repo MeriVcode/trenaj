@@ -1,0 +1,988 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🗺️ Квест: Путешествие по Острову Умножения</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/fontsource/fonts/nunito@latest/cyrillic-700-normal.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/fontsource/fonts/nunito@latest/cyrillic-400-normal.css">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  
+  :root {
+    --orange: #FF8C42;
+    --yellow: #FFD166;
+    --peach: #FFB997;
+    --mint: #7DD3A8;
+    --mint-light: #A8E6CF;
+    --cream: #FFF8E7;
+    --brown: #6B4423;
+    --pink: #FF9AA2;
+  }
+  
+  body {
+    font-family: 'Nunito', sans-serif;
+    background: linear-gradient(135deg, #FFF8E7 0%, #FFE8D1 50%, #D4F5E0 100%);
+    min-height: 100vh;
+    color: var(--brown);
+    overflow-x: hidden;
+    font-size: 18px;
+  }
+  
+  /* Декоративные облака */
+  .clouds {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    pointer-events: none;
+    z-index: 0;
+    overflow: hidden;
+  }
+  .cloud {
+    position: absolute;
+    background: rgba(255,255,255,0.6);
+    border-radius: 50%;
+    animation: float 20s infinite ease-in-out;
+  }
+  .cloud::before, .cloud::after {
+    content: '';
+    position: absolute;
+    background: inherit;
+    border-radius: 50%;
+  }
+  .cloud1 { width: 80px; height: 80px; top: 10%; left: 10%; }
+  .cloud1::before { width: 60px; height: 60px; top: -20px; left: 30px; }
+  .cloud1::after { width: 50px; height: 50px; top: 10px; left: 60px; }
+  .cloud2 { width: 100px; height: 100px; top: 30%; right: 15%; animation-delay: -5s; }
+  .cloud2::before { width: 70px; height: 70px; top: -25px; left: 40px; }
+  .cloud2::after { width: 60px; height: 60px; top: 15px; left: 75px; }
+  .cloud3 { width: 70px; height: 70px; bottom: 20%; left: 20%; animation-delay: -10s; }
+  .cloud3::before { width: 50px; height: 50px; top: -15px; left: 25px; }
+  .cloud3::after { width: 45px; height: 45px; top: 10px; left: 50px; }
+  
+  @keyframes float {
+    0%, 100% { transform: translate(0, 0); }
+    50% { transform: translate(30px, -20px); }
+  }
+  
+  .container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 20px;
+    position: relative;
+    z-index: 1;
+  }
+  
+  /* ===== СТАРТОВЫЙ ЭКРАН ===== */
+  .screen {
+    display: none;
+    animation: fadeIn 0.6s ease;
+  }
+  .screen.active { display: block; }
+  
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  
+  .start-screen {
+    text-align: center;
+    padding: 30px 20px;
+  }
+  
+  .hero-title {
+    font-size: 42px;
+    color: var(--orange);
+    margin-bottom: 10px;
+    text-shadow: 3px 3px 0 var(--yellow);
+    font-weight: 700;
+  }
+  
+  .hero-subtitle {
+    font-size: 22px;
+    color: var(--brown);
+    margin-bottom: 30px;
+  }
+  
+  .fox-container {
+    margin: 20px auto;
+    width: 220px;
+    height: 220px;
+    animation: bounce 2s infinite ease-in-out;
+  }
+  
+  @keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-15px); }
+  }
+  
+  .fox-name {
+    font-size: 26px;
+    color: var(--orange);
+    font-weight: 700;
+    margin-top: 5px;
+    text-shadow: 2px 2px 0 var(--yellow);
+  }
+  
+  .story-box {
+    background: white;
+    border: 4px dashed var(--orange);
+    border-radius: 30px;
+    padding: 25px;
+    margin: 25px auto;
+    max-width: 700px;
+    font-size: 19px;
+    line-height: 1.7;
+    box-shadow: 0 8px 0 var(--peach);
+  }
+  
+  .story-box p { margin-bottom: 12px; }
+  .story-box .highlight {
+    background: var(--yellow);
+    padding: 2px 10px;
+    border-radius: 10px;
+    font-weight: 700;
+  }
+  
+  .btn {
+    background: var(--orange);
+    color: white;
+    border: none;
+    padding: 18px 45px;
+    font-size: 22px;
+    font-weight: 700;
+    border-radius: 50px;
+    cursor: pointer;
+    font-family: inherit;
+    box-shadow: 0 6px 0 #D97030;
+    transition: all 0.15s;
+    margin: 10px;
+  }
+  .btn:hover { transform: translateY(-2px); box-shadow: 0 8px 0 #D97030; }
+  .btn:active { transform: translateY(4px); box-shadow: 0 2px 0 #D97030; }
+  
+  .btn-mint {
+    background: var(--mint);
+    box-shadow: 0 6px 0 #5BB88A;
+  }
+  .btn-mint:hover { box-shadow: 0 8px 0 #5BB88A; }
+  .btn-mint:active { box-shadow: 0 2px 0 #5BB88A; }
+  
+  /* ===== КАРТА ===== */
+  .map-header {
+    background: white;
+    border-radius: 30px;
+    padding: 20px;
+    margin-bottom: 25px;
+    box-shadow: 0 6px 0 var(--peach);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 15px;
+  }
+  
+  .map-title {
+    font-size: 28px;
+    color: var(--orange);
+    font-weight: 700;
+  }
+  
+  .progress-info {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    font-size: 18px;
+    font-weight: 700;
+  }
+  
+  .stars-count {
+    background: var(--yellow);
+    padding: 8px 18px;
+    border-radius: 20px;
+    color: var(--brown);
+  }
+  
+  .progress-bar {
+    width: 100%;
+    height: 20px;
+    background: #F0E4D0;
+    border-radius: 20px;
+    overflow: hidden;
+    margin-top: 10px;
+    border: 3px solid white;
+  }
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--mint), var(--mint-light));
+    width: 0%;
+    transition: width 0.5s ease;
+    border-radius: 20px;
+  }
+  
+  .map-container {
+    background: white;
+    border-radius: 30px;
+    padding: 30px 20px;
+    box-shadow: 0 6px 0 var(--peach);
+    position: relative;
+  }
+  
+  .map-path {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 15px;
+    position: relative;
+  }
+  
+  .location {
+    text-align: center;
+    cursor: pointer;
+    transition: transform 0.3s;
+    position: relative;
+  }
+  .location:hover:not(.locked) { transform: translateY(-8px) scale(1.05); }
+  .location.locked { cursor: not-allowed; opacity: 0.5; }
+  .location.locked .location-icon { filter: grayscale(0.7); }
+  
+  .location-icon {
+    width: 90px;
+    height: 90px;
+    margin: 0 auto 10px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 45px;
+    box-shadow: 0 6px 0 rgba(0,0,0,0.15);
+    position: relative;
+    transition: all 0.3s;
+  }
+  
+  .location.completed .location-icon {
+    background: var(--mint) !important;
+  }
+  .location.completed .location-icon::after {
+    content: '✓';
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    background: var(--orange);
+    color: white;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    font-weight: 700;
+    border: 3px solid white;
+  }
+  
+  .location-name {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--brown);
+    margin-top: 5px;
+  }
+  
+  .location-rule {
+    font-size: 14px;
+    color: var(--orange);
+    font-weight: 700;
+  }
+  
+  /* ===== МОДАЛЬНОЕ ОКНО ЗАДАНИЯ ===== */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(107, 68, 35, 0.5);
+    z-index: 100;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    animation: fadeIn 0.3s;
+  }
+  .modal-overlay.active { display: flex; }
+  
+  .modal {
+    background: var(--cream);
+    border-radius: 30px;
+    padding: 30px;
+    max-width: 600px;
+    width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+    position: relative;
+    box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+    animation: popIn 0.4s ease;
+  }
+  
+  @keyframes popIn {
+    from { transform: scale(0.8); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+  }
+  
+  .modal-close {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: white;
+    border: none;
+    font-size: 22px;
+    cursor: pointer;
+    color: var(--brown);
+    font-weight: 700;
+    box-shadow: 0 3px 0 rgba(0,0,0,0.1);
+  }
+  
+  .modal-header {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  
+  .modal-emoji {
+    font-size: 70px;
+    margin-bottom: 10px;
+    animation: bounce 2s infinite;
+  }
+  
+  .modal-title {
+    font-size: 28px;
+    color: var(--orange);
+    font-weight: 700;
+  }
+  
+  .modal-story {
+    background: white;
+    border-radius: 20px;
+    padding: 18px;
+    margin-bottom: 20px;
+    font-size: 18px;
+    line-height: 1.6;
+    border-left: 5px solid var(--mint);
+  }
+  
+  .task-counter {
+    text-align: center;
+    font-size: 16px;
+    color: var(--brown);
+    margin-bottom: 15px;
+    font-weight: 700;
+  }
+  
+  .task-question {
+    background: white;
+    border-radius: 25px;
+    padding: 30px 20px;
+    text-align: center;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 0 var(--peach);
+  }
+  
+  .question-text {
+    font-size: 42px;
+    font-weight: 700;
+    color: var(--brown);
+    letter-spacing: 3px;
+  }
+  
+  .answers-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+    margin-bottom: 20px;
+  }
+  
+  .answer-btn {
+    background: white;
+    border: 4px solid var(--mint);
+    border-radius: 20px;
+    padding: 20px;
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--brown);
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.2s;
+    box-shadow: 0 4px 0 var(--mint-light);
+  }
+  .answer-btn:hover {
+    background: var(--mint-light);
+    transform: translateY(-2px);
+  }
+  .answer-btn.correct {
+    background: var(--mint);
+    color: white;
+    border-color: var(--mint);
+    animation: correctPulse 0.5s;
+  }
+  .answer-btn.wrong {
+    background: var(--pink);
+    color: white;
+    border-color: var(--pink);
+    animation: shake 0.4s;
+  }
+  
+  @keyframes correctPulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+  }
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-10px); }
+    75% { transform: translateX(10px); }
+  }
+  
+  .feedback {
+    text-align: center;
+    font-size: 20px;
+    font-weight: 700;
+    min-height: 30px;
+    margin-bottom: 15px;
+  }
+  .feedback.success { color: var(--mint); }
+  .feedback.error { color: var(--orange); }
+  
+  .modal-actions {
+    text-align: center;
+  }
+  
+  /* ===== ФИНАЛЬНЫЙ ЭКРАН ===== */
+  .final-screen {
+    text-align: center;
+    padding: 30px 20px;
+  }
+  
+  .trophy {
+    font-size: 120px;
+    animation: trophySpin 2s ease;
+    margin: 20px 0;
+  }
+  
+  @keyframes trophySpin {
+    0% { transform: scale(0) rotate(-180deg); }
+    100% { transform: scale(1) rotate(0); }
+  }
+  
+  .final-title {
+    font-size: 42px;
+    color: var(--orange);
+    margin-bottom: 15px;
+    text-shadow: 3px 3px 0 var(--yellow);
+  }
+  
+  .final-stats {
+    background: white;
+    border-radius: 30px;
+    padding: 25px;
+    margin: 25px auto;
+    max-width: 500px;
+    box-shadow: 0 6px 0 var(--peach);
+  }
+  
+  .stat-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 0;
+    font-size: 20px;
+    border-bottom: 2px dashed var(--peach);
+  }
+  .stat-row:last-child { border: none; }
+  .stat-value {
+    font-weight: 700;
+    color: var(--orange);
+    font-size: 24px;
+  }
+  
+  .medals {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin: 20px 0;
+    flex-wrap: wrap;
+  }
+  .medal {
+    background: var(--yellow);
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 35px;
+    box-shadow: 0 4px 0 #E6B84D;
+    animation: medalDrop 0.6s ease backwards;
+  }
+  .medal:nth-child(1) { animation-delay: 0.2s; }
+  .medal:nth-child(2) { animation-delay: 0.4s; }
+  .medal:nth-child(3) { animation-delay: 0.6s; }
+  .medal:nth-child(4) { animation-delay: 0.8s; }
+  .medal:nth-child(5) { animation-delay: 1.0s; }
+  
+  @keyframes medalDrop {
+    from { transform: translateY(-50px) rotate(-180deg); opacity: 0; }
+    to { transform: translateY(0) rotate(0); opacity: 1; }
+  }
+  
+  /* Конфетти */
+  .confetti {
+    position: fixed;
+    width: 10px;
+    height: 10px;
+    top: -10px;
+    z-index: 200;
+    animation: confettiFall 3s linear forwards;
+  }
+  @keyframes confettiFall {
+    to { transform: translateY(110vh) rotate(720deg); }
+  }
+  
+  /* Адаптивность */
+  @media (max-width: 768px) {
+    .hero-title { font-size: 32px; }
+    .hero-subtitle { font-size: 18px; }
+    .story-box { font-size: 17px; padding: 20px; }
+    .map-path { grid-template-columns: repeat(2, 1fr); }
+    .location-icon { width: 75px; height: 75px; font-size: 38px; }
+    .question-text { font-size: 34px; }
+    .answers-grid { grid-template-columns: 1fr 1fr; }
+    .answer-btn { font-size: 24px; padding: 15px; }
+    .modal-title { font-size: 24px; }
+    .map-title { font-size: 22px; }
+  }
+  
+  @media (max-width: 480px) {
+    .hero-title { font-size: 26px; }
+    .question-text { font-size: 28px; }
+    .btn { padding: 14px 30px; font-size: 18px; }
+    .location-icon { width: 65px; height: 65px; font-size: 32px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="clouds">
+  <div class="cloud cloud1"></div>
+  <div class="cloud cloud2"></div>
+  <div class="cloud cloud3"></div>
+</div>
+
+<div class="container">
+  
+  <!-- СТАРТОВЫЙ ЭКРАН -->
+  <div class="screen active" id="startScreen">
+    <div class="start-screen">
+      <h1 class="hero-title">🗺️ Остров Умножения</h1>
+      <p class="hero-subtitle">Квест по математике для 3 класса</p>
+      
+      <div class="fox-container">
+        <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+          <!-- Тело -->
+          <ellipse cx="100" cy="140" rx="55" ry="45" fill="#FF8C42"/>
+          <!-- Голова -->
+          <circle cx="100" cy="85" r="50" fill="#FF8C42"/>
+          <!-- Уши -->
+          <polygon points="65,55 55,20 85,45" fill="#FF8C42"/>
+          <polygon points="135,55 145,20 115,45" fill="#FF8C42"/>
+          <polygon points="68,50 62,30 80,45" fill="#FFB997"/>
+          <polygon points="132,50 138,30 120,45" fill="#FFB997"/>
+          <!-- Мордочка светлая -->
+          <ellipse cx="100" cy="100" rx="30" ry="22" fill="#FFE8D1"/>
+          <!-- Глаза -->
+          <circle cx="85" cy="80" r="6" fill="#6B4423"/>
+          <circle cx="115" cy="80" r="6" fill="#6B4423"/>
+          <circle cx="87" cy="78" r="2" fill="white"/>
+          <circle cx="117" cy="78" r="2" fill="white"/>
+          <!-- Нос -->
+          <ellipse cx="100" cy="95" rx="5" ry="4" fill="#6B4423"/>
+          <!-- Улыбка -->
+          <path d="M 90 105 Q 100 112 110 105" stroke="#6B4423" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+          <!-- Рюкзак -->
+          <rect x="140" y="115" width="30" height="40" rx="8" fill="#7DD3A8"/>
+          <rect x="145" y="125" width="20" height="10" rx="3" fill="#A8E6CF"/>
+          <!-- Лапки -->
+          <ellipse cx="75" cy="175" rx="15" ry="10" fill="#FF8C42"/>
+          <ellipse cx="125" cy="175" rx="15" ry="10" fill="#FF8C42"/>
+          <!-- Хвост -->
+          <path d="M 45 140 Q 20 130 30 100 Q 40 90 55 110" fill="#FF8C42"/>
+          <path d="M 30 100 Q 35 95 40 100" fill="#FFE8D1"/>
+          <!-- Карта в лапке -->
+          <rect x="55" y="155" width="25" height="18" rx="2" fill="#FFD166" transform="rotate(-15 67 164)"/>
+          <line x1="60" y1="160" x2="75" y2="158" stroke="#FF8C42" stroke-width="1.5" transform="rotate(-15 67 164)"/>
+          <line x1="60" y1="165" x2="75" y2="163" stroke="#FF8C42" stroke-width="1.5" transform="rotate(-15 67 164)"/>
+        </svg>
+      </div>
+      <div class="fox-name">🦊 Рыжик</div>
+      
+      <div class="story-box">
+        <p>👋 Привет, юный математик!</p>
+        <p>Меня зовут <span class="highlight">Рыжик</span> — я маленький лисёнок-исследователь. Я нашёл волшебную карту <span class="highlight">Острова Умножения</span>!</p>
+        <p>🌳 На острове <b>5 удивительных мест</b>. В каждом тебя ждут задания на умножение. Решишь все — найдёшь <b>сокровище</b>! 💎</p>
+        <p>Готов к приключениям? Тогда в путь!</p>
+      </div>
+      
+      <button class="btn" onclick="startQuest()">🚀 Начать приключение!</button>
+    </div>
+  </div>
+  
+  <!-- КАРТА -->
+  <div class="screen" id="mapScreen">
+    <div class="map-header">
+      <div>
+        <div class="map-title">🗺️ Карта Острова</div>
+        <div class="progress-bar">
+          <div class="progress-fill" id="progressFill"></div>
+        </div>
+      </div>
+      <div class="progress-info">
+        <div class="stars-count">⭐ <span id="starsCount">0</span> / 15</div>
+      </div>
+    </div>
+    
+    <div class="map-container">
+      <div class="map-path" id="mapPath"></div>
+    </div>
+  </div>
+  
+  <!-- ФИНАЛЬНЫЙ ЭКРАН -->
+  <div class="screen" id="finalScreen">
+    <div class="final-screen">
+      <div class="trophy">🏆</div>
+      <h1 class="final-title">Ты — настоящий герой!</h1>
+      <p style="font-size: 22px; margin-bottom: 15px;">🎉 Рыжик поздравляет тебя! Ты прошёл все испытания Острова Умножения!</p>
+      
+      <div class="medals" id="medals"></div>
+      
+      <div class="final-stats">
+        <div class="stat-row">
+          <span>⭐ Собрано звёзд:</span>
+          <span class="stat-value" id="finalStars">0</span>
+        </div>
+        <div class="stat-row">
+          <span>🎯 Правильных ответов:</span>
+          <span class="stat-value" id="finalCorrect">0</span>
+        </div>
+        <div class="stat-row">
+          <span>🏅 Твоё звание:</span>
+          <span class="stat-value" id="finalTitle">—</span>
+        </div>
+      </div>
+      
+      <button class="btn btn-mint" onclick="restartQuest()">🔄 Пройти ещё раз</button>
+    </div>
+  </div>
+  
+</div>
+
+<!-- МОДАЛЬНОЕ ОКНО -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <div class="modal-header">
+      <div class="modal-emoji" id="modalEmoji">🌳</div>
+      <h2 class="modal-title" id="modalTitle">Локация</h2>
+    </div>
+    <div class="modal-story" id="modalStory"></div>
+    <div class="task-counter" id="taskCounter">Задание 1 из 3</div>
+    <div class="task-question">
+      <div class="question-text" id="questionText">2 × 3 = ?</div>
+    </div>
+    <div class="answers-grid" id="answersGrid"></div>
+    <div class="feedback" id="feedback"></div>
+    <div class="modal-actions">
+      <button class="btn btn-mint" id="nextBtn" onclick="nextTask()" style="display:none;">Дальше →</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Данные квеста
+  const locations = [
+    {
+      id: 1,
+      name: "Волшебный лес",
+      emoji: "🌳",
+      color: "#7DD3A8",
+      rule: "×2",
+      story: "🌲 «В Волшебном лесу живут белочки! — рассказывает Рыжик. — Они собирают орешки парами. Помоги мне посчитать, сколько орешков у белочек!»",
+      tasks: [
+        { q: "2 × 3", a: 6, options: [5, 6, 7, 8] },
+        { q: "2 × 7", a: 14, options: [12, 14, 16, 15] },
+        { q: "2 × 9", a: 18, options: [16, 18, 20, 17] }
+      ]
+    },
+    {
+      id: 2,
+      name: "Серебряная река",
+      emoji: "🌊",
+      color: "#6BC5E8",
+      rule: "×3",
+      story: "🐟 «Смотри, через реку перекинут мост! — удивляется Рыжик. — На каждой доске — по 3 рыбки. Сколько всего рыбок приветствуют нас?»",
+      tasks: [
+        { q: "3 × 4", a: 12, options: [10, 12, 14, 9] },
+        { q: "3 × 6", a: 18, options: [16, 18, 21, 15] },
+        { q: "3 × 8", a: 24, options: [21, 24, 27, 22] }
+      ]
+    },
+    {
+      id: 3,
+      name: "Хрустальные горы",
+      emoji: "⛰️",
+      color: "#B39DDB",
+      rule: "×4",
+      story: "💎 «Ого, какие красивые пещеры! — шепчет Рыжик. — В каждой спрятано по 4 кристалла. Давай сосчитаем, сколько их всего в горах!»",
+      tasks: [
+        { q: "4 × 3", a: 12, options: [10, 12, 14, 16] },
+        { q: "4 × 6", a: 24, options: [20, 22, 24, 26] },
+        { q: "4 × 7", a: 28, options: [24, 26, 28, 32] }
+      ]
+    },
+    {
+      id: 4,
+      name: "Золотой замок",
+      emoji: "🏰",
+      color: "#FFD166",
+      rule: "×5",
+      story: "👑 «Это замок Короля Цифр! — радостно пищит Рыжик. — У него 5 сундуков с монетами. В каждом — одинаковое число монет. Сосчитаем?»",
+      tasks: [
+        { q: "5 × 4", a: 20, options: [15, 20, 25, 18] },
+        { q: "5 × 7", a: 35, options: [30, 35, 40, 32] },
+        { q: "5 × 9", a: 45, options: [40, 45, 50, 42] }
+      ]
+    },
+    {
+      id: 5,
+      name: "Остров Сокровищ",
+      emoji: "💎",
+      color: "#FF9AA2",
+      rule: "Микс",
+      story: "🎁 «Мы почти у цели! — прыгает от радости Рыжик. — Финальное испытание! Чтобы открыть сундук с сокровищами, реши последние задачки. Я в тебя верю!»",
+      tasks: [
+        { q: "2 × 8", a: 16, options: [14, 16, 18, 20] },
+        { q: "3 × 9", a: 27, options: [24, 27, 30, 21] },
+        { q: "4 × 5", a: 20, options: [15, 20, 25, 18] }
+      ]
+    }
+  ];
+  
+  let currentLocation = 0;
+  let currentTask = 0;
+  let stars = 0;
+  let correctAnswers = 0;
+  let completedLocations = [];
+  let locationStars = {};
+  
+  function startQuest() {
+    document.getElementById('startScreen').classList.remove('active');
+    document.getElementById('mapScreen').classList.add('active');
+    renderMap();
+  }
+  
+  function renderMap() {
+    const mapPath = document.getElementById('mapPath');
+    mapPath.innerHTML = '';
+    
+    locations.forEach((loc, idx) => {
+      const isLocked = idx > 0 && !completedLocations.includes(idx - 1);
+      const isCompleted = completedLocations.includes(idx);
+      
+      const div = document.createElement('div');
+      div.className = 'location' + (isLocked ? ' locked' : '') + (isCompleted ? ' completed' : '');
+      div.innerHTML = `
+        <div class="location-icon" style="background: ${loc.color};">
+          ${loc.emoji}
+        </div>
+        <div class="location-name">${loc.name}</div>
+        <div class="location-rule">${loc.rule}</div>
+      `;
+      
+      if (!isLocked) {
+        div.onclick = () => openLocation(idx);
+      }
+      
+      mapPath.appendChild(div);
+    });
+    
+    updateProgress();
+  }
+  
+  function updateProgress() {
+    const percent = (completedLocations.length / locations.length) * 100;
+    document.getElementById('progressFill').style.width = percent + '%';
+    document.getElementById('starsCount').textContent = stars;
+  }
+  
+  function openLocation(idx) {
+    currentLocation = idx;
+    currentTask = 0;
+    locationStars[idx] = 0;
+    showModal();
+  }
+  
+  function showModal() {
+    const loc = locations[currentLocation];
+    const task = loc.tasks[currentTask];
+    
+    document.getElementById('modalEmoji').textContent = loc.emoji;
+    document.getElementById('modalTitle').textContent = loc.name;
+    document.getElementById('modalStory').textContent = loc.story;
+    document.getElementById('taskCounter').textContent = `Задание ${currentTask + 1} из ${loc.tasks.length}`;
+    document.getElementById('questionText').textContent = task.q + ' = ?';
+    document.getElementById('feedback').textContent = '';
+    document.getElementById('feedback').className = 'feedback';
+    document.getElementById('nextBtn').style.display = 'none';
+    
+    const grid = document.getElementById('answersGrid');
+    grid.innerHTML = '';
+    
+    // Перемешиваем варианты
+    const shuffled = [...task.options].sort(() => Math.random() - 0.5);
+    
+    shuffled.forEach(opt => {
+      const btn = document.createElement('button');
+      btn.className = 'answer-btn';
+      btn.textContent = opt;
+      btn.onclick = () => checkAnswer(btn, opt, task.a);
+      grid.appendChild(btn);
+    });
+    
+    document.getElementById('modalOverlay').classList.add('active');
+  }
+  
+  function checkAnswer(btn, selected, correct) {
+    const buttons = document.querySelectorAll('.answer-btn');
+    buttons.forEach(b => b.onclick = null);
+    
+    const feedback = document.getElementById('feedback');
+    
+    if (selected === correct) {
+      btn.classList.add('correct');
+      feedback.textContent = '✨ Рыжик радуется: «Отлично! Правильно!»';
+      feedback.className = 'feedback success';
+      stars++;
+      correctAnswers++;
+      locationStars[currentLocation]++;
+      
+      setTimeout(() => {
+        document.getElementById('nextBtn').style.display = 'inline-block';
+      }, 600);
+    } else {
+      btn.classList.add('wrong');
+      feedback.textContent = `🤔 Рыжик подсказывает: правильный ответ — ${correct}`;
+      feedback.className = 'feedback error';
+      
+      // Подсвечиваем правильный
+      buttons.forEach(b => {
+        if (parseInt(b.textContent) === correct) {
+          b.classList.add('correct');
+        }
+      });
+      
+      setTimeout(() => {
+        document.getElementById('nextBtn').style.display = 'inline-block';
+      }, 1000);
+    }
+  }
+  
+  function nextTask() {
+    const loc = locations[currentLocation];
+    currentTask++;
+    
+    if (currentTask >= loc.tasks.length) {
+      // Локация пройдена
+      if (!completedLocations.includes(currentLocation)) {
+        completedLocations.push(currentLocation);
+      }
+      closeModal();
+      
+      if (completedLocations.length === locations.length) {
+        setTimeout(showFinal, 400);
+      } else {
+        renderMap();
+      }
+    } else {
+      showModal();
+    }
+  }
+  
+  function closeModal() {
+    document.getElementById('modalOverlay').classList.remove('active');
+  }
+  
+  function showFinal() {
+    document.getElementById('mapScreen').classList.remove('active');
+    document.getElementById('finalScreen').classList.add('active');
+    
+    document.getElementById('finalStars').textContent = stars;
+    document.getElementById('finalCorrect').textContent = correctAnswers;
+    
+    // Звание
+    let title = 'Юный математик';
+    if (stars >= 14) title = 'Мастер Умножения! 🌟';
+    else if (stars >= 11) title = 'Знаток Цифр!';
+    else if (stars >= 8) title = 'Умник!';
+    document.getElementById('finalTitle').textContent = title;
+    
+    // Медали
+    const medals = document.getElementById('medals');
+    medals.innerHTML = '';
+    for (let i = 0; i < completedLocations.length; i++) {
+      const m = document.createElement('div');
+      m.className = 'medal';
+      m.textContent = '🏅';
+      medals.appendChild(m);
+    }
+    
+    // Конфетти
+    launchConfetti();
+  }
+  
+  function launchConfetti() {
+    const colors = ['#FF8C42', '#FFD166', '#7DD3A8', '#FF9AA2', '#B39DDB'];
+    for (let i = 0; i < 60; i++) {
+      setTimeout(() => {
+        const c = document.createElement('div');
+        c.className = 'confetti';
+        c.style.left = Math.random() * 100 + '%';
+        c.style.background = colors[Math.floor(Math.random() * colors.length)];
+        c.style.animationDuration = (2 + Math.random() * 2) + 's';
+        c.style.transform = `rotate(${Math.random() * 360}deg)`;
+        if (Math.random() > 0.5) {
+          c.style.borderRadius = '50%';
+        }
+        document.body.appendChild(c);
+        setTimeout(() => c.remove(), 4000);
+      }, i * 50);
+    }
+  }
+  
+  function restartQuest() {
+    currentLocation = 0;
+    currentTask = 0;
+    stars = 0;
+    correctAnswers = 0;
+    completedLocations = [];
+    locationStars = {};
+    
+    document.getElementById('finalScreen').classList.remove('active');
+    document.getElementById('startScreen').classList.add('active');
+  }
+  
+  // Закрытие модалки по клику на фон
+  document.getElementById('modalOverlay').addEventListener('click', (e) => {
+    if (e.target.id === 'modalOverlay') {
+      closeModal();
+    }
+  });
+</script>
+
+</body>
+</html>
