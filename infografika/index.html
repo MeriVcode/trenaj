@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Конструктор промптов для инфографики - NanoBanana</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        .author-name {
+            text-align: center;
+            color: #667eea;
+            font-size: 1.1em;
+            font-weight: 600;
+            margin-bottom: 10px;
+            letter-spacing: 1px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 2em;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 0.95em;
+        }
+
+        .form-section {
+            margin-bottom: 25px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 12px;
+            border-left: 4px solid #667eea;
+        }
+
+        .form-section h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 1.1em;
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            color: #444;
+            margin-bottom: 8px;
+            font-size: 0.95em;
+        }
+
+        .hint {
+            font-weight: 400;
+            color: #999;
+            font-size: 0.85em;
+            margin-left: 5px;
+        }
+
+        input[type="text"],
+        textarea,
+        select {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 1em;
+            transition: all 0.3s;
+            font-family: inherit;
+        }
+
+        input[type="text"]:focus,
+        textarea:focus,
+        select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .style-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 12px;
+            margin-top: 10px;
+        }
+
+        .style-card {
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: white;
+        }
+
+        .style-card:hover {
+            border-color: #667eea;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
+        }
+
+        .style-card.selected {
+            border-color: #667eea;
+            background: #f0f0ff;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+
+        .style-card .emoji {
+            font-size: 1.8em;
+            margin-bottom: 8px;
+        }
+
+        .style-card .name {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .style-card .desc {
+            font-size: 0.85em;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .style-card .use {
+            font-size: 0.8em;
+            color: #667eea;
+            font-style: italic;
+        }
+
+        .blocks-container {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .block-row {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .block-row input {
+            flex: 1;
+        }
+
+        .block-row button {
+            padding: 10px 14px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.1em;
+            transition: all 0.3s;
+        }
+
+        .btn-remove {
+            background: #ff6b6b;
+            color: white;
+        }
+
+        .btn-remove:hover {
+            background: #ff5252;
+        }
+
+        .btn-add {
+            background: #667eea;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 0.95em;
+            margin-top: 10px;
+            transition: all 0.3s;
+        }
+
+        .btn-add:hover {
+            background: #5a6fd6;
+            transform: translateY(-1px);
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .btn-generate {
+            width: 100%;
+            padding: 18px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.2em;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-generate:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
+        }
+
+        .output-area {
+            margin-top: 30px;
+            background: #f8f9fa;
+            border: 3px solid #667eea;
+            border-radius: 15px;
+            padding: 25px;
+            display: none;
+        }
+
+        .output-area h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+
+        .output-area pre {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            font-family: 'Courier New', monospace;
+            font-size: 0.95em;
+            line-height: 1.6;
+            color: #333;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            border: 2px dashed #e0e0e0;
+        }
+
+        .btn-copy {
+            margin-top: 15px;
+            padding: 12px 30px;
+            background: #28a745;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .btn-copy:hover {
+            background: #218838;
+            transform: translateY(-1px);
+        }
+
+        .required {
+            color: #ff6b6b;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 25px;
+            }
+            
+            h1 {
+                font-size: 1.5em;
+            }
+            
+            .style-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="author-name">М.Братухина</div>
+        <h1>🎨 Конструктор промптов</h1>
+        <p class="subtitle">Инфографика для учителя начальных классов • Стили NanoBanana</p>
+
+        <!-- Тема -->
+        <div class="form-section">
+            <label>📌 Тема инфографики <span class="required">*</span> <span class="hint">(например: «Части речи», «Таблица умножения на 7»)</span></label>
+            <input type="text" id="topic" placeholder="Введите тему...">
+        </div>
+
+        <!-- Класс и тип материала -->
+        <div class="form-section">
+            <div class="options-grid">
+                <div>
+                    <label>🎓 Класс <span class="required">*</span></label>
+                    <select id="grade">
+                        <option value="1">1 класс (6-7 лет)</option>
+                        <option value="2" selected>2 класс (7-8 лет)</option>
+                        <option value="3">3 класс (8-9 лет)</option>
+                        <option value="4">4 класс (9-10 лет)</option>
+                    </select>
+                </div>
+                <div>
+                    <label>📦 Тип материала <span class="required">*</span></label>
+                    <select id="materialType">
+                        <option value="рабочего листа">📄 Рабочий лист</option>
+                        <option value="страницы рабочей тетради">📓 Рабочая тетрадь</option>
+                        <option value="плаката / постера">🖼️ Плакат / Постер</option>
+                        <option value="раздаточных карточек">🃏 Карточки</option>
+                        <option value="схемы / таблицы">📊 Схема / Таблица</option>
+                        <option value="игрового материала"> Игровой материал</option>
+                        <option value="методического пособия">📖 Методическое пособие</option>
+                        <option value="задания на вырезание">✂️ Задание на вырезание</option>
+                    </select>
+                </div>
+                <div>
+                    <label>📐 Формат</label>
+                    <select id="format">
+                        <option value="А4 вертикальный">А4 вертикальный</option>
+                        <option value="А4 горизонтальный" selected>А4 горизонтальный</option>
+                        <option value="А5 вертикальный">А5 вертикальный</option>
+                        <option value="А5 горизонтальный">А5 горизонтальный</option>
+                        <option value="А3 вертикальный">А3 вертикальный</option>
+                        <option value="А3 горизонтальный">А3 горизонтальный</option>
+                        <option value="квадрат (1:1)">Квадрат (1:1)</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- Стиль -->
+        <div class="form-section">
+            <label>🎭 Стиль инфографики <span class="required">*</span> <span class="hint">(выберите один стиль)</span></label>
+            <div class="style-grid" id="styleGrid">
+                <div class="style-card" data-style="Скетч/Скетчбук" data-desc="живые линии, каракули, подчёркивания чернилами, рукописный стиль" onclick="selectStyle(this)">
+                    <div class="emoji"></div>
+                    <div class="name">Скетч / Скетчбук</div>
+                    <div class="desc">Живые линии, каракули, подчёркивания</div>
+                    <div class="use">→ Памятки, творческие задания</div>
+                </div>
+                <div class="style-card" data-style="Дудл (Doodle)" data-desc="простые формы, элементы, точки, рисунки на полях, минималистично" onclick="selectStyle(this)">
+                    <div class="emoji">✏️</div>
+                    <div class="name">Дудл (Doodle)</div>
+                    <div class="desc">Простые формы, «рисунки на полях»</div>
+                    <div class="use">→ Аппликации, запоминание терминов</div>
+                </div>
+                <div class="style-card" data-style="Конспект в тетради" data-desc="ручка/карандаш, выделение маркером, подчёркивания, как настоящий ученический конспект" onclick="selectStyle(this)">
+                    <div class="emoji">📓</div>
+                    <div class="name">Конспект в тетради</div>
+                    <div class="desc">Рукописный текст, выделение маркером</div>
+                    <div class="use">→ Тезисы, структурирование материала</div>
+                </div>
+                <div class="style-card" data-style="Маркерная доска / Whiteboard" data-desc="белый фон, маркерные линии, стрелки, схемы, как на школьной доске" onclick="selectStyle(this)">
+                    <div class="emoji">📋</div>
+                    <div class="name">Маркерная доска</div>
+                    <div class="desc">Белая доска, маркеры, стрелки, схемы</div>
+                    <div class="use">→ Алгоритмы, разбор задач, логика</div>
+                </div>
+                <div class="style-card" data-style="Карта сокровищ" data-desc="пергамент, картушки, ориентиры, стрелки, зоны, пиратская тематика" onclick="selectStyle(this)">
+                    <div class="emoji">🗺️</div>
+                    <div class="name">Карта сокровищ</div>
+                    <div class="desc">Пергамент, картуш, стрелки, зоны</div>
+                    <div class="use">→ Квесты, этапы урока, задания с наградами</div>
+                </div>
+                <div class="style-card" data-style="Дневник путешественника" data-desc="бумага, заметки, печати, воспоминания, как настоящий дневник исследователя" onclick="selectStyle(this)">
+                    <div class="emoji"></div>
+                    <div class="name">Дневник путешественника</div>
+                    <div class="desc">Бумага, заметки, печати</div>
+                    <div class="use">→ Проекты, изучение тем по шагам</div>
+                </div>
+                <div class="style-card" data-style="Крафт-бумага" data-desc="тёплая текстура крафт-бумаги, скотч, стикеры, уютный стиль" onclick="selectStyle(this)">
+                    <div class="emoji">📦</div>
+                    <div class="name">Крафт-бумага</div>
+                    <div class="desc">Тёплая текстура, скотч, стикеры</div>
+                    <div class="use">→ Рефлексия, приоритеты, инсайты</div>
+                </div>
+                <div class="style-card" data-style="Электронный блокнот" data-desc="страницы в линию/клетку, закладки, стикеры, иконки «заметки», маркерные выделения, эффект пролистывания" onclick="selectStyle(this)">
+                    <div class="emoji">💻</div>
+                    <div class="name">Электронный блокнот</div>
+                    <div class="desc">Линовка, закладки, иконки, стикеры</div>
+                    <div class="use">→ Пошаговые задания, рабочие листы</div>
+                </div>
+                <div class="style-card" data-style="Стикеры / Заметки на доске" data-desc="разноцветные стикеры, прикреплённые записки, яркий и игривый стиль" onclick="selectStyle(this)">
+                    <div class="emoji">🏷️</div>
+                    <div class="name">Стикеры / Заметки</div>
+                    <div class="desc">Разноцветные стикеры, записки</div>
+                    <div class="use">→ Классификация, группировка, мозговой штурм</div>
+                </div>
+                <div class="style-card" data-style="Акварель / Детская иллюстрация" data-desc="мягкие акварельные разводы, милые персонажи, пастельные тона, художественный стиль" onclick="selectStyle(this)">
+                    <div class="emoji">🎨</div>
+                    <div class="name">Акварель / Детская иллюстрация</div>
+                    <div class="desc">Акварельные разводы, милые персонажи</div>
+                    <div class="use">→ Плакаты для младших классов, украшение класса</div>
+                </div>
+                <div class="style-card" data-style="Яркий детский / Мультяшный" data-desc="насыщенные цвета, улыбающиеся персонажи, игровые элементы, весёлый дизайн" onclick="selectStyle(this)">
+                    <div class="emoji"></div>
+                    <div class="name">Яркий детский / Мультяшный</div>
+                    <div class="desc">Насыщенные цвета, улыбающиеся персонажи</div>
+                    <div class="use">→ Плакаты 1-2 класс, правила, мотивация</div>
+                </div>
+                <div class="style-card" data-style="Минимализм / Чистый дизайн" data-desc="простые формы, много воздуха, чёткая структура, 2-3 цвета, профессионально" onclick="selectStyle(this)">
+                    <div class="emoji">📐</div>
+                    <div class="name">Минимализм / Чистый дизайн</div>
+                    <div class="desc">Простые формы, чёткая структура</div>
+                    <div class="use">→ Таблицы, схемы, старшие классы</div>
+                </div>
+                <div class="style-card" data-style="Комикс / История" data-desc="панели комиксов, пузыри с текстом, персонажи в действии, история в картинках" onclick="selectStyle(this)">
+                    <div class="emoji">🖼️</div>
+                    <div class="name">Комикс / История</div>
+                    <div class="desc">Панели комиксов, пузыри с текстом</div>
+                    <div class="use">→ Истории, правила в ситуациях</div>
+                </div>
+                <div class="style-card" data-style="Пошаговый / Инструкция" data-desc="чёткие шаги 1-2-3, стрелки, нумерация, чек-листы, алгоритмический подход" onclick="selectStyle(this)">
+                    <div class="emoji">🎯</div>
+                    <div class="name">Пошаговый / Инструкция</div>
+                    <div class="desc">Чёткие шаги, стрелки, нумерация</div>
+                    <div class="use">→ Алгоритмы, инструкции, памятки</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Блоки информации -->
+        <div class="form-section">
+            <label>📚 Информационные блоки <span class="required">*</span> <span class="hint">(3-6 блоков с конкретным содержанием)</span></label>
+            <div class="blocks-container" id="blocksContainer">
+                <div class="block-row">
+                    <input type="text" placeholder="Блок 1: например, «Определение: Имя существительное отвечает на вопросы КТО? ЧТО?»">
+                    <button class="btn-remove" onclick="removeBlock(this)" title="Удалить блок">✕</button>
+                </div>
+                <div class="block-row">
+                    <input type="text" placeholder="Блок 2: например, «Примеры с картинками: кот (кто?), солнце (что?)»">
+                    <button class="btn-remove" onclick="removeBlock(this)" title="Удалить блок">✕</button>
+                </div>
+                <div class="block-row">
+                    <input type="text" placeholder="Блок 3: например, «Задание: подпиши к картинкам кто это или что это»">
+                    <button class="btn-remove" onclick="removeBlock(this)" title="Удалить блок">✕</button>
+                </div>
+            </div>
+            <button class="btn-add" onclick="addBlock()">+ Добавить блок</button>
+        </div>
+
+        <!-- Дополнительные настройки -->
+        <div class="form-section">
+            <div class="options-grid">
+                <div>
+                    <label>🎨 Цветовая палитра</label>
+                    <select id="colorPalette">
+                        <option value="яркие детские цвета (жёлтый, голубой, розовый, зелёный)">🌈 Яркие детские цвета</option>
+                        <option value="пастельные тона (мягкие, нежные оттенки)">🌸 Пастельные тона</option>
+                        <option value="природные оттенки (зелёный, коричневый, бежевый)">🌿 Природные оттенки</option>
+                        <option value="контрастные цвета (красный, синий, жёлтый)">🎯 Контрастные цвета</option>
+                        <option value="монохромная палитра (один цвет + оттенки)"> Монохром</option>
+                        <option value="тёплые тона пергамента (коричневый, золотой, бежевый)">📜 Тёплые тона пергамента</option>
+                        <option value="белый фон с разноцветными маркерами (синий, красный, зелёный, чёрный)">📋 Маркерная доска</option>
+                    </select>
+                </div>
+                <div>
+                    <label>✨ Дополнительные элементы</label>
+                    <select id="elements" multiple style="min-height: 80px;">
+                        <option value="милые персонажи (животные, дети)">🐱 Милые персонажи</option>
+                        <option value="иконки и символы">🔖 Иконки и символы</option>
+                        <option value="рамки и границы">️ Рамки и границы</option>
+                        <option value="стрелки и связи">➡️ Стрелки и связи</option>
+                        <option value="места для заполнения учениками">✍️ Места для заполнения</option>
+                        <option value="звёздочки и поощрения">⭐ Звёздочки</option>
+                        <option value="геометрические фигуры">🔷 Геометрические фигуры</option>
+                    </select>
+                    <small style="color: #999; display: block; margin-top: 5px;">Удерживайте Ctrl/Cmd для выбора нескольких</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Особые требования -->
+        <div class="form-section">
+            <label> Особые требования <span class="hint">(необязательно)</span></label>
+            <textarea id="extra" placeholder="Например: оставь пустые поля для заполнения учениками, крупный шрифт для слабовидящих, чёрно-белая версия для печати, пунктирные линии для вырезания..."></textarea>
+        </div>
+
+        <!-- Цель -->
+        <div class="form-section">
+            <label>🎯 Цель обучения <span class="hint">(что должны узнать/запомнить дети)</span></label>
+            <textarea id="goal" placeholder="Например: дети должны научиться отличать имена существительные и определять одушевлённость/неодушевлённость..." style="min-height: 60px;"></textarea>
+        </div>
+
+        <!-- Кнопка генерации -->
+        <button class="btn-generate" onclick="generatePrompt()">✨ Сгенерировать промпт</button>
+
+        <!-- Вывод промпта -->
+        <div class="output-area" id="outputArea">
+            <h3>📋 Ваш готовый промпт для NanoBanana:</h3>
+            <pre id="outputText"></pre>
+            <button class="btn-copy" onclick="copyPrompt()">📋 Скопировать в буфер обмена</button>
+        </div>
+    </div>
+
+    <script>
+        let selectedStyle = '';
+        let selectedDesc = '';
+
+        function selectStyle(el) {
+            document.querySelectorAll('.style-card').forEach(c => c.classList.remove('selected'));
+            el.classList.add('selected');
+            selectedStyle = el.dataset.style;
+            selectedDesc = el.dataset.desc;
+        }
+
+        function addBlock() {
+            const container = document.getElementById('blocksContainer');
+            const blockNum = container.children.length + 1;
+            const row = document.createElement('div');
+            row.className = 'block-row';
+            row.innerHTML = `
+                <input type="text" placeholder="Блок ${blockNum}: опишите содержание блока...">
+                <button class="btn-remove" onclick="removeBlock(this)" title="Удалить блок">✕</button>
+            `;
+            container.appendChild(row);
+        }
+
+        function removeBlock(btn) {
+            const container = document.getElementById('blocksContainer');
+            if (container.children.length > 1) {
+                btn.parentElement.remove();
+            } else {
+                alert('Должен остаться хотя бы один блок!');
+            }
+        }
+
+        function generatePrompt() {
+            const topic = document.getElementById('topic').value.trim();
+            const grade = document.getElementById('grade').value;
+            const materialType = document.getElementById('materialType').value;
+            const format = document.getElementById('format').value;
+            const colorPalette = document.getElementById('colorPalette').value;
+            const extra = document.getElementById('extra').value.trim();
+            const goal = document.getElementById('goal').value.trim();
+
+            // Get selected elements
+            const elementsSelect = document.getElementById('elements');
+            const selectedElements = Array.from(elementsSelect.selectedOptions).map(opt => opt.value);
+            const elementsText = selectedElements.length > 0 ? selectedElements.join(', ') : 'тематические иконки и иллюстрации';
+
+            // Get blocks
+            const blocks = [];
+            document.querySelectorAll('#blocksContainer input').forEach((input, index) => {
+                if (input.value.trim()) {
+                    blocks.push(`${index + 1}. ${input.value.trim()}`);
+                }
+            });
+
+            // Validation
+            if (!topic) {
+                alert('Пожалуйста, введите тему инфографики!');
+                document.getElementById('topic').focus();
+                return;
+            }
+
+            if (!selectedStyle) {
+                alert('Пожалуйста, выберите стиль инфографики!');
+                document.getElementById('styleGrid').scrollIntoView({ behavior: 'smooth', block: 'center' });
+                return;
+            }
+
+            if (blocks.length < 2) {
+                alert('Пожалуйста, заполните хотя бы 2 информационных блока!');
+                document.getElementById('blocksContainer').scrollIntoView({ behavior: 'smooth', block: 'center' });
+                return;
+            }
+
+            const blocksText = blocks.join('\n');
+            const ages = {'1': '6-7', '2': '7-8', '3': '8-9', '4': '9-10'};
+            const age = ages[grade];
+
+            let prompt = `Создай инфографику в стиле "${selectedStyle}" (${selectedDesc}) для ${materialType} по теме "${topic}" для учеников ${grade} класса начальной школы.
+
+📌 СТИЛЬ: ${selectedDesc}
+
+📚 ИНФОРМАЦИОННЫЕ БЛОКИ:
+${blocksText}
+
+🎨 ЦВЕТА: ${colorPalette}
+
+✨ ЭЛЕМЕНТЫ: ${elementsText}
+
+📐 ФОРМАТ: ${format}
+
+📋 ТРЕБОВАНИЯ:
+- Весь текст на русском языке
+- Шрифт крупный, читаемый для детей ${age} лет
+- Инфографика должна быть понятна без дополнительных объяснений учителя
+- Визуально привлекательная для детей ${age} лет
+- Структурированная и логичная`;
+
+            if (extra) {
+                prompt += `\n- ${extra}`;
+            }
+
+            if (goal) {
+                prompt += `\n\n🎯 ЦЕЛЬ: ${goal}`;
+            }
+
+            document.getElementById('outputText').textContent = prompt;
+            document.getElementById('outputArea').style.display = 'block';
+            document.getElementById('outputArea').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function copyPrompt() {
+            const text = document.getElementById('outputText').textContent;
+            navigator.clipboard.writeText(text).then(() => {
+                const btn = document.querySelector('.btn-copy');
+                const originalText = btn.textContent;
+                btn.textContent = '✅ Скопировано!';
+                btn.style.background = '#218838';
+                setTimeout(() => {
+                    btn.textContent = originalText;
+                    btn.style.background = '#28a745';
+                }, 2000);
+            }).catch(err => {
+                alert('Не удалось скопировать. Пожалуйста, скопируйте вручную.');
+                console.error('Copy error:', err);
+            });
+        }
+
+        // Add Enter key support for blocks
+        document.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter' && e.target.tagName === 'INPUT' && e.target.closest('.block-row')) {
+                e.preventDefault();
+                addBlock();
+                const inputs = document.querySelectorAll('#blocksContainer input');
+                inputs[inputs.length - 1].focus();
+            }
+        });
+    </script>
+</body>
+</html>
