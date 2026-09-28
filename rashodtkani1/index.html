@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<title>🧵 Юный портной — задачи про ткань</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Comic Sans MS', 'Trebuchet MS', sans-serif;
+    background: linear-gradient(135deg, #fce4ec 0%, #e1f5fe 100%);
+    min-height: 100vh;
+    padding: 20px;
+    color: #333;
+  }
+  .container {
+    max-width: 850px;
+    margin: 0 auto;
+    background: white;
+    border-radius: 25px;
+    padding: 30px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+  }
+  h1 {
+    text-align: center;
+    color: #4A90E2;
+    font-size: 2.2em;
+    margin-bottom: 10px;
+  }
+  .subtitle {
+    text-align: center;
+    color: #777;
+    margin-bottom: 20px;
+    font-size: 1.1em;
+  }
+  .progress-bar {
+    background: #eee;
+    border-radius: 20px;
+    height: 25px;
+    margin-bottom: 25px;
+    overflow: hidden;
+    position: relative;
+  }
+  .progress-fill {
+    background: linear-gradient(90deg, #77DD77, #4A90E2);
+    height: 100%;
+    width: 0%;
+    transition: width 0.5s ease;
+    border-radius: 20px;
+  }
+  .progress-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-weight: bold;
+    color: #333;
+    font-size: 0.9em;
+  }
+  .task {
+    background: linear-gradient(135deg, #fff9c4 0%, #fff59d 100%);
+    border-radius: 20px;
+    padding: 20px;
+    margin-bottom: 20px;
+    border: 3px solid #ffd54f;
+    transition: all 0.3s;
+  }
+  .task.solved {
+    background: linear-gradient(135deg, #c8e6c9 0%, #a5d6a7 100%);
+    border-color: #77DD77;
+  }
+  .task-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+  .task-number {
+    background: #4A90E2;
+    color: white;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 1.2em;
+  }
+  .task-emoji {
+    font-size: 1.8em;
+  }
+  .task-text {
+    font-size: 1.1em;
+    line-height: 1.5;
+    margin-bottom: 15px;
+    padding: 10px;
+    background: rgba(255,255,255,0.6);
+    border-radius: 10px;
+  }
+  .step-block {
+    background: white;
+    padding: 15px;
+    border-radius: 12px;
+    margin-bottom: 12px;
+    border: 2px solid #e0e0e0;
+  }
+  .step-label {
+    font-weight: bold;
+    color: #4A90E2;
+    margin-bottom: 10px;
+    font-size: 1.05em;
+  }
+  .calc-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .calc-row input[type="number"], 
+  .calc-row select {
+    padding: 8px 12px;
+    font-size: 1.1em;
+    border: 2px solid #4A90E2;
+    border-radius: 10px;
+    font-family: inherit;
+    background: white;
+    transition: all 0.2s;
+  }
+  .calc-row input[type="number"] { 
+    width: 70px; 
+    text-align: center; 
+  }
+  .calc-row select { 
+    cursor: pointer; 
+    min-width: 60px; 
+  }
+  .calc-row input[type="number"]:focus, 
+  .calc-row select:focus {
+    outline: none;
+    border-color: #77DD77;
+    box-shadow: 0 0 0 3px rgba(119, 221, 119, 0.2);
+  }
+  .calc-row .equals {
+    font-weight: bold;
+    font-size: 1.3em;
+    color: #e91e63;
+  }
+  .check-btn {
+    background: linear-gradient(135deg, #4A90E2, #357abd);
+    color: white;
+    border: none;
+    padding: 10px 25px;
+    font-size: 1em;
+    border-radius: 25px;
+    cursor: pointer;
+    font-family: inherit;
+    font-weight: bold;
+    transition: all 0.2s;
+    box-shadow: 0 4px 10px rgba(74,144,226,0.3);
+    margin-top: 10px;
+  }
+  .check-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(74,144,226,0.4);
+  }
+  .check-btn:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+    transform: none;
+  }
+  .feedback {
+    margin-top: 10px;
+    padding: 10px;
+    border-radius: 10px;
+    font-weight: bold;
+    text-align: center;
+    display: none;
+  }
+  .feedback.correct {
+    background: #c8e6c9;
+    color: #2e7d32;
+    display: block;
+    animation: pop 0.4s ease;
+  }
+  .feedback.wrong {
+    background: #ffcdd2;
+    color: #c62828;
+    display: block;
+    animation: shake 0.4s ease;
+  }
+  @keyframes pop {
+    0% { transform: scale(0.8); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+  }
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-10px); }
+    75% { transform: translateX(10px); }
+  }
+  .final-screen {
+    display: none;
+    text-align: center;
+    padding: 30px;
+    background: linear-gradient(135deg, #fff59d 0%, #ffcc80 100%);
+    border-radius: 25px;
+    margin-top: 20px;
+  }
+  .final-screen.show { display: block; animation: pop 0.6s ease; }
+  .final-screen h2 {
+    color: #e91e63;
+    font-size: 2em;
+    margin-bottom: 15px;
+  }
+  .stars {
+    font-size: 3em;
+    margin: 20px 0;
+  }
+  .restart-btn {
+    background: linear-gradient(135deg, #77DD77, #5cb85c);
+    color: white;
+    border: none;
+    padding: 12px 30px;
+    font-size: 1.1em;
+    border-radius: 25px;
+    cursor: pointer;
+    font-family: inherit;
+    font-weight: bold;
+    margin-top: 15px;
+    box-shadow: 0 4px 10px rgba(119,221,119,0.3);
+  }
+  .restart-btn:hover { transform: translateY(-2px); }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>🧵 Юный портной 👗</h1>
+  <p class="subtitle">Реши задачи про ткань и стань мастером-счётчиком!</p>
+
+  <div class="progress-bar">
+    <div class="progress-fill" id="progressFill"></div>
+    <div class="progress-text" id="progressText">0 / 6 решено</div>
+  </div>
+
+  <div id="tasksContainer"></div>
+
+  <div class="final-screen" id="finalScreen">
+    <h2>🎉 Ура! Все задачи решены!</h2>
+    <div class="stars" id="starsDisplay"></div>
+    <p id="finalMessage" style="font-size:1.2em; margin-bottom:15px;"></p>
+    <button class="restart-btn" onclick="location.reload()">🔄 Пройти ещё раз</button>
+  </div>
+</div>
+
+<script>
+const tasks = [
+  {
+    emoji: "🏃",
+    text: "На пошив одной спортивной формы для гимнаста требуется 3 метра ткани. Сколько метров ткани нужно купить, чтобы сшить такие формы для 4 гимнастов?",
+    steps: [
+      { label: "Шаг 1:", num1: 3, num2: 4, action: "×", result: 12 }
+    ],
+    finalAnswer: 12,
+    unit: "м"
+  },
+  {
+    emoji: "🛏️",
+    text: "У мамы есть рулон ткани длиной 18 метров. Она хочет сшить из него одинаковые наволочки. На одну наволочку уходит 2 метра ткани. Сколько наволочек получится сшить?",
+    steps: [
+      { label: "Шаг 1:", num1: 18, num2: 2, action: ":", result: 9 }
+    ],
+    finalAnswer: 9,
+    unit: "шт."
+  },
+  {
+    emoji: "👗",
+    text: "Из 15 метров ткани швея сшила 5 одинаковых юбок для кукол. Сколько метров ткани уходило на одну такую юбку?",
+    steps: [
+      { label: "Шаг 1:", num1: 15, num2: 5, action: ":", result: 3 }
+    ],
+    finalAnswer: 3,
+    unit: "м"
+  },
+  {
+    emoji: "🧥",
+    text: "На мужское пальто идёт 4 м ткани, а на детское — 2 м. На сколько больше метров ткани нужно для 3 мужских пальто, чем для 3 детских?",
+    steps: [
+      { label: "Шаг 1 (мужские):", num1: 4, num2: 3, action: "×", result: 12 },
+      { label: "Шаг 2 (детские):", num1: 2, num2: 3, action: "×", result: 6 },
+      { label: "Шаг 3 (разница):", num1: 12, num2: 6, action: "-", result: 6 }
+    ],
+    finalAnswer: 6,
+    unit: "м"
+  },
+  {
+    emoji: "🪟",
+    text: "Для штор нужно 7 м ткани. У завхоза есть два куска: 3 м и 5 м. Хватит ли ткани? Сколько метров останется?",
+    steps: [
+      { label: "Шаг 1 (всего ткани):", num1: 3, num2: 5, action: "+", result: 8 },
+      { label: "Шаг 2 (остаток):", num1: 8, num2: 7, action: "-", result: 1 }
+    ],
+    finalAnswer: 1,
+    unit: "м"
+  },
+  {
+    emoji: "👨‍🍳",
+    text: "Ателье получило заказ: 6 фартуков (по 2 м) и 4 передника (по 1 м). Сколько всего метров ткани нужно?",
+    steps: [
+      { label: "Шаг 1 (фартуки):", num1: 6, num2: 2, action: "×", result: 12 },
+      { label: "Шаг 2 (передники):", num1: 4, num2: 1, action: "×", result: 4 },
+      { label: "Шаг 3 (всего):", num1: 12, num2: 4, action: "+", result: 16 }
+    ],
+    finalAnswer: 16,
+    unit: "м"
+  }
+];
+
+const container = document.getElementById('tasksContainer');
+let solvedCount = 0;
+
+tasks.forEach((task, idx) => {
+  const taskDiv = document.createElement('div');
+  taskDiv.className = 'task';
+  taskDiv.id = `task-${idx}`;
+
+  let stepsHTML = '';
+  task.steps.forEach((step, sIdx) => {
+    stepsHTML += `
+      <div class="step-block">
+        <div class="step-label">${step.label}</div>
+        <div class="calc-row">
+          <input type="number" id="task-${idx}-step-${sIdx}-num1" min="0" max="999" placeholder="?">
+          <select id="task-${idx}-step-${sIdx}-action">
+            <option value="+">+</option>
+            <option value="-">−</option>
+            <option value="×">×</option>
+            <option value=":">÷</option>
+          </select>
+          <input type="number" id="task-${idx}-step-${sIdx}-num2" min="0" max="999" placeholder="?">
+          <span class="equals">=</span>
+          <input type="number" id="task-${idx}-step-${sIdx}-result" min="0" max="999" placeholder="?">
+        </div>
+      </div>
+    `;
+  });
+
+  taskDiv.innerHTML = `
+    <div class="task-header">
+      <div class="task-number">${idx + 1}</div>
+      <div class="task-emoji">${task.emoji}</div>
+    </div>
+    <div class="task-text">${task.text}</div>
+    ${stepsHTML}
+    <button class="check-btn" onclick="checkTask(${idx})">✅ Проверить</button>
+    <div class="feedback" id="feedback-${idx}"></div>
+  `;
+  container.appendChild(taskDiv);
+});
+
+function checkTask(idx) {
+  const task = tasks[idx];
+  const feedback = document.getElementById(`feedback-${idx}`);
+  const taskDiv = document.getElementById(`task-${idx}`);
+  let allCorrect = true;
+
+  task.steps.forEach((step, sIdx) => {
+    const num1 = parseInt(document.getElementById(`task-${idx}-step-${sIdx}-num1`).value);
+    const num2 = parseInt(document.getElementById(`task-${idx}-step-${sIdx}-num2`).value);
+    const action = document.getElementById(`task-${idx}-step-${sIdx}-action`).value;
+    const result = parseInt(document.getElementById(`task-${idx}-step-${sIdx}-result`).value);
+
+    if (num1 !== step.num1 || num2 !== step.num2 || action !== step.action || result !== step.result) {
+      allCorrect = false;
+    }
+  });
+
+  if (allCorrect) {
+    feedback.className = 'feedback correct';
+    feedback.innerHTML = `🌟 Отлично! Всё верно! Ответ: ${task.finalAnswer} ${task.unit}. Ты настоящий мастер!`;
+    taskDiv.classList.add('solved');
+    document.querySelector(`#task-${idx} .check-btn`).disabled = true;
+    taskDiv.querySelectorAll('input, select').forEach(el => el.disabled = true);
+    if (!taskDiv.dataset.counted) {
+      taskDiv.dataset.counted = 'true';
+      solvedCount++;
+      updateProgress();
+    }
+  } else {
+    feedback.className = 'feedback wrong';
+    feedback.innerHTML = '🤔 Попробуй ещё раз! Проверь числа, действие и результат.';
+  }
+}
+
+function updateProgress() {
+  const pct = (solvedCount / tasks.length) * 100;
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progressText').textContent = `${solvedCount} / ${tasks.length} решено`;
+  if (solvedCount === tasks.length) {
+    setTimeout(showFinal, 600);
+  }
+}
+
+function showFinal() {
+  const screen = document.getElementById('finalScreen');
+  screen.classList.add('show');
+  document.getElementById('starsDisplay').textContent = '⭐⭐⭐⭐⭐⭐';
+  document.getElementById('finalMessage').textContent = 
+    'Ты решил все 6 задач! Теперь ты настоящий юный портной-счётчик! 👨‍🎨👩‍🎨';
+  screen.scrollIntoView({ behavior: 'smooth' });
+}
+</script>
+</body>
+</html>
