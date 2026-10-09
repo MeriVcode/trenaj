@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Магазин игрушек</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;font-family:'Segoe UI',system-ui,sans-serif}
+body{min-height:100vh;display:flex;align-items:center;justify-content:center;
+  background:linear-gradient(160deg,#fef3c7 0%,#fbbf24 40%,#f59e0b 100%);padding:14px}
+.game{width:100%;max-width:960px;background:#fff;border-radius:26px;
+  box-shadow:0 24px 60px rgba(120,53,15,.35);overflow:hidden;position:relative}
+.top{background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff;
+  padding:18px 24px;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.top h1{font-size:24px;font-weight:700;display:flex;align-items:center;gap:10px}
+.badges{display:flex;gap:8px;align-items:center}
+.badge{background:rgba(255,255,255,.25);padding:8px 18px;border-radius:20px;font-size:18px;font-weight:700}
+.help-btn{width:46px;height:46px;border-radius:50%;border:3px solid #fff;
+  background:rgba(255,255,255,.25);color:#fff;font-size:26px;font-weight:900;
+  cursor:pointer;transition:transform .15s;font-family:inherit}
+.help-btn:hover{background:#fff;color:#d97706;transform:scale(1.08)}
+.body{padding:22px}
+
+/* ---------- Витрина ---------- */
+.shop-window{display:flex;align-items:center;justify-content:center;gap:24px;
+  background:linear-gradient(180deg,#fef9c3,#fef3c7);border-radius:20px;
+  padding:18px 22px;border:3px solid #fde68a;flex-wrap:wrap}
+.toy{font-size:110px;line-height:1;filter:drop-shadow(0 8px 14px rgba(120,53,15,.3));
+  animation:toyFloat 2.5s ease-in-out infinite}
+@keyframes toyFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+.price-card{background:#fff;border-radius:18px;padding:14px 24px;
+  box-shadow:0 8px 20px rgba(180,83,9,.2);text-align:center;border:3px dashed #f59e0b}
+.price-label{font-size:16px;color:#92400e;font-weight:700;letter-spacing:1px;text-transform:uppercase}
+.price-value{font-size:56px;font-weight:900;color:#c2410c;line-height:1.1}
+.price-value small{font-size:26px;color:#f59e0b}
+
+/* ---------- Полка ---------- */
+.shelf{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin-top:14px;min-height:70px}
+.shelf-item{background:#fff7ed;border:3px solid #fed7aa;border-radius:16px;
+  padding:10px 14px;display:flex;align-items:center;gap:10px;animation:pop .4s ease}
+.shelf-item .emoji{font-size:36px}
+.shelf-item .num{font-size:24px;font-weight:800;color:#c2410c}
+.shelf-item.active{border-color:#16a34a;background:#dcfce7;
+  box-shadow:0 0 0 4px rgba(22,163,74,.2)}
+.shelf-item.done{opacity:.35;filter:grayscale(1)}
+@keyframes pop{0%{transform:scale(0);opacity:0}70%{transform:scale(1.1)}100%{transform:scale(1)}}
+
+/* ---------- Кошелёк ---------- */
+.wallet{background:#f8fafc;border-radius:18px;padding:16px 18px;margin-top:16px;
+  border:3px solid #e2e8f0}
+.wallet-title{font-size:18px;font-weight:700;color:#334155;margin-bottom:10px}
+.wallet-total{font-size:24px;font-weight:800;color:#16a34a;float:right}
+.wallet-total.over{color:#ef4444}
+.wallet-total.exact{animation:pop .5s ease}
+.two-rows{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:10px}
+.row-box{background:#eef2ff;border-radius:14px;padding:10px;min-height:170px;
+  display:flex;flex-direction:column}
+.row-box.units{background:#fffbeb}
+.row-box .row-label{font-size:14px;font-weight:700;color:#4338ca;
+  margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px}
+.row-box.units .row-label{color:#b45309}
+.row-items{display:flex;flex-wrap:wrap;gap:6px;align-items:flex-end;
+  align-content:flex-start;flex:1;padding:4px;min-height:130px}
+.row-items:empty::before{content:'пока пусто';color:#94a3b8;font-size:13px;
+  font-style:italic;align-self:center;margin:auto}
+.rod{width:20px;height:140px;display:grid;grid-template-rows:repeat(10,1fr);
+  gap:1px;padding:2px;background:#1e40af;border-radius:5px;
+  box-shadow:0 4px 10px rgba(37,99,235,.4);animation:pop .3s ease}
+.rod .sq{background:linear-gradient(180deg,#60a5fa,#2563eb);border-radius:2px}
+.unit{width:18px;height:14px;border-radius:3px;
+  background:linear-gradient(180deg,#fcd34d,#f59e0b);
+  box-shadow:0 3px 6px rgba(245,158,11,.35);animation:pop .25s ease}
+
+/* ---------- Кнопки ---------- */
+.controls{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:16px}
+button{font-family:inherit;font-weight:700;border:none;border-radius:14px;
+  padding:14px 26px;cursor:pointer;font-size:20px;transition:transform .12s}
+button:active{transform:scale(.94)}
+button:disabled{opacity:.4;cursor:not-allowed}
+.btn-t{background:linear-gradient(135deg,#3b82f6,#2563eb);color:#fff;box-shadow:0 5px 0 #1d4ed8}
+.btn-u{background:linear-gradient(135deg,#fbbf24,#f59e0b);color:#fff;box-shadow:0 5px 0 #d97706}
+.btn-reset{background:#e2e8f0;color:#475569;box-shadow:0 5px 0 #cbd5e1}
+.btn-pay{background:linear-gradient(135deg,#34d399,#10b981);color:#fff;
+  box-shadow:0 5px 0 #059669;padding:14px 34px}
+.msg{text-align:center;font-size:22px;font-weight:700;min-height:32px;margin-top:14px}
+.msg.ok{color:#16a34a}.msg.err{color:#ef4444}.msg.info{color:#d97706}
+
+/* ---------- Финал ---------- */
+.final{text-align:center;padding:30px 10px}
+.final h2{font-size:44px;color:#d97706;margin-bottom:16px}
+.final p{font-size:26px;color:#475569;margin-bottom:24px}
+.btn-again{background:linear-gradient(135deg,#34d399,#10b981);color:#fff;
+  box-shadow:0 6px 0 #059669;font-size:22px;padding:16px 36px}
+
+.progress{height:10px;background:#fef3c7}
+.progress i{display:block;height:100%;background:linear-gradient(90deg,#f59e0b,#d97706);
+  transition:width .4s;width:0}
+
+/* ---------- Экран инструкции ---------- */
+.overlay{position:fixed;inset:0;background:rgba(30,20,0,.72);
+  display:flex;align-items:center;justify-content:center;padding:16px;z-index:100;
+  animation:fadeIn .3s ease}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.overlay.hidden{display:none}
+.help-card{width:100%;max-width:680px;max-height:92vh;overflow-y:auto;
+  background:#fff;border-radius:26px;box-shadow:0 30px 70px rgba(0,0,0,.5);
+  animation:slideUp .35s ease}
+@keyframes slideUp{from{transform:translateY(30px);opacity:0}to{transform:translateY(0);opacity:1}}
+.help-head{background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff;
+  padding:20px 26px;display:flex;justify-content:space-between;align-items:center;gap:10px}
+.help-head h2{font-size:26px;font-weight:800}
+.help-close{width:40px;height:40px;border-radius:50%;border:2px solid #fff;
+  background:transparent;color:#fff;font-size:22px;font-weight:900;cursor:pointer;
+  line-height:1;padding:0;font-family:inherit}
+.help-close:hover{background:#fff;color:#d97706}
+.help-body{padding:22px 26px 26px;font-size:17px;color:#334155;line-height:1.55}
+.help-body h3{font-size:20px;color:#d97706;margin:18px 0 8px;font-weight:800}
+.help-body h3:first-child{margin-top:0}
+.help-body p{margin-bottom:10px}
+.help-body b{color:#1e293b}
+.coin-row{display:flex;align-items:center;gap:12px;background:#f8fafc;
+  border-radius:14px;padding:10px 14px;margin-bottom:8px;border:2px solid #e2e8f0}
+.coin-rod{width:20px;height:60px;display:grid;grid-template-rows:repeat(10,1fr);
+  gap:1px;padding:2px;background:#1e40af;border-radius:4px;flex-shrink:0}
+.coin-rod .sq{background:linear-gradient(180deg,#60a5fa,#2563eb);border-radius:1px}
+.coin-unit{width:20px;height:16px;border-radius:3px;
+  background:linear-gradient(180deg,#fcd34d,#f59e0b);flex-shrink:0}
+.coin-row span{font-size:16px;font-weight:700;color:#334155}
+.step{display:flex;gap:14px;margin-bottom:12px;align-items:flex-start}
+.step-num{width:34px;height:34px;border-radius:50%;flex-shrink:0;
+  background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff;
+  font-size:18px;font-weight:900;display:flex;align-items:center;justify-content:center}
+.tip{background:#fef3c7;border-left:5px solid #f59e0b;border-radius:10px;
+  padding:12px 16px;font-size:16px;margin:10px 0}
+.tip b{color:#b45309}
+.help-foot{padding:0 26px 26px;text-align:center}
+.btn-start{background:linear-gradient(135deg,#34d399,#10b981);color:#fff;
+  box-shadow:0 6px 0 #059669;font-size:22px;font-weight:800;
+  border-radius:16px;padding:16px 40px;cursor:pointer;border:none;font-family:inherit}
+.btn-start:active{transform:scale(.95)}
+</style>
+</head>
+<body>
+
+<!-- Экран инструкции -->
+<div class="overlay" id="overlay">
+  <div class="help-card">
+    <div class="help-head">
+      <h2>🛒 Как играть</h2>
+      <button class="help-close" id="helpClose" title="Закрыть">✕</button>
+    </div>
+    <div class="help-body">
+      <p>Привет! Ты — покупатель в магазине игрушек. Твоя задача — <b>купить игрушку ровно за её цену</b>.</p>
+
+      <h3>💰 Твои монеты</h3>
+      <div class="coin-row">
+        <div class="coin-rod"><div class="sq"></div><div class="sq"></div><div class="sq"></div><div class="sq"></div><div class="sq"></div><div class="sq"></div><div class="sq"></div><div class="sq"></div><div class="sq"></div><div class="sq"></div></div>
+        <span><b>1 синий столбик = 10 рублей</b><br><small>внутри 10 маленьких квадратиков</small></span>
+      </div>
+      <div class="coin-row">
+        <div class="coin-unit"></div>
+        <span><b>1 жёлтый квадратик = 1 рубль</b></span>
+      </div>
+
+      <h3>🎯 Что делать — по шагам</h3>
+      <div class="step"><div class="step-num">1</div><div>Посмотри на <b>игрушку и её цену</b>. Например: 🧸 за <b>42 ₽</b>.</div></div>
+      <div class="step"><div class="step-num">2</div><div>Нажимай <b>«+ 10 ₽»</b> и <b>«+ 1 ₽»</b>, чтобы собрать нужную сумму в кошельке.</div></div>
+      <div class="step"><div class="step-num">3</div><div>Следи за надписью <b>«Твой кошелёк»</b>:
+        <br>⚫ чёрная — ещё не хватает;
+        <br>🔴 красная — перебрал;
+        <br>🟢 зелёная — <b>ровно столько!</b></div></div>
+      <div class="step"><div class="step-num">4</div><div>Нажми <b>«💳 Оплатить»</b>. Если сумма верная — игрушка уедет в корзину, а ты получишь ⭐.</div></div>
+      <div class="step"><div class="step-num">5</div><div>Ошибся? Нажми <b>«↺ Сбросить»</b> и попробуй снова.</div></div>
+
+      <div class="tip">💡 <b>Пример:</b> цена 35 ₽ — жми «+ 10 ₽» <b>3 раза</b> (будет 30) и «+ 1 ₽» <b>5 раз</b> (будет 35). Готово!</div>
+      <div class="tip">🏆 Купи все 6 игрушек и собери все звёзды!</div>
+    </div>
+    <div class="help-foot">
+      <button class="btn-start" id="startBtn">Понятно, играем! 🚀</button>
+    </div>
+  </div>
+</div>
+
+<div class="game">
+  <div class="top">
+    <h1>🛒 Магазин игрушек</h1>
+    <div class="badges">
+      <div class="badge" id="round">1 / 6</div>
+      <div class="badge" id="score">⭐ 0</div>
+      <button class="help-btn" id="helpBtn" title="Инструкция">?</button>
+    </div>
+  </div>
+  <div class="body" id="body"></div>
+  <div class="progress"><i id="bar"></i></div>
+</div>
+
+<script>
+const body=document.getElementById('body'), roundEl=document.getElementById('round'),
+      scoreEl=document.getElementById('score'), bar=document.getElementById('bar');
+const overlay=document.getElementById('overlay'),
+      helpBtn=document.getElementById('helpBtn'),
+      helpClose=document.getElementById('helpClose'),
+      startBtn=document.getElementById('startBtn');
+
+helpBtn.onclick=()=>overlay.classList.remove('hidden');
+helpClose.onclick=()=>overlay.classList.add('hidden');
+startBtn.onclick=()=>overlay.classList.add('hidden');
+overlay.onclick=(e)=>{if(e.target===overlay)overlay.classList.add('hidden');};
+
+const items=[
+  {emoji:'🧸', name:'Мишка',   price:42},
+  {emoji:'🚗', name:'Машинка', price:57},
+  {emoji:'🤖', name:'Робот',   price:35},
+  {emoji:'🎈', name:'Шарик',   price:23},
+  {emoji:'🐻', name:'Панда',   price:64},
+  {emoji:'🚀', name:'Ракета',  price:70}
+];
+
+let idx=0, score=0, tens=0, units=0, paid=false;
+
+function beep(f,d,type='sine'){try{
+  const c=beep.c||(beep.c=new (window.AudioContext||window.webkitAudioContext)());
+  const o=c.createOscillator(),g=c.createGain();o.type=type;o.frequency.value=f;
+  o.connect(g);g.connect(c.destination);g.gain.setValueAtTime(.08,c.currentTime);
+  g.gain.exponentialRampToValueAtTime(.001,c.currentTime+d);o.start();o.stop(c.currentTime+d);
+}catch(e){}}
+
+function upd(){
+  roundEl.textContent=Math.min(idx+1,items.length)+' / '+items.length;
+  scoreEl.textContent='⭐ '+score;
+  bar.style.width=(idx/items.length*100)+'%';
+}
+
+function render(){
+  if(idx>=items.length)return end();
+  paid=false; tens=0; units=0;
+  const it=items[idx];
+  upd();
+
+  body.innerHTML=`
+    <div class="shop-window">
+      <div class="toy" id="toy">${it.emoji}</div>
+      <div class="price-card">
+        <div class="price-label">Цена</div>
+        <div class="price-value">${it.price}<small> ₽</small></div>
+      </div>
+    </div>
+    <div class="shelf" id="shelf"></div>
+    <div class="wallet">
+      <div class="wallet-title">
+        Твой кошелёк:
+        <span class="wallet-total" id="total">0 ₽</span>
+      </div>
+      <div class="two-rows">
+        <div class="row-box">
+          <div class="row-label">🟦 Десятки (по 10 ₽)</div>
+          <div class="row-items" id="tensBox"></div>
+        </div>
+        <div class="row-box units">
+          <div class="row-label">🟨 Единицы (по 1 ₽)</div>
+          <div class="row-items" id="unitsBox"></div>
+        </div>
+      </div>
+    </div>
+    <div class="controls">
+      <button class="btn-t" id="addT">+ 10 ₽</button>
+      <button class="btn-u" id="addU">+ 1 ₽</button>
+      <button class="btn-reset" id="reset">↺ Сбросить</button>
+      <button class="btn-pay" id="pay">💳 Оплатить</button>
+    </div>
+    <div class="msg" id="msg"></div>`;
+
+  renderShelf();
+  document.getElementById('addT').onclick=()=>{if(tens<9){tens++;beep(520,.06);paint();}};
+  document.getElementById('addU').onclick=()=>{if(units<9){units++;beep(660,.06);paint();}};
+  document.getElementById('reset').onclick=()=>{tens=0;units=0;paint();
+    document.getElementById('msg').textContent='';};
+  document.getElementById('pay').onclick=pay;
+  paint();
+}
+
+function renderShelf(){
+  const shelf=document.getElementById('shelf');
+  shelf.innerHTML='';
+  items.forEach((it,i)=>{
+    const d=document.createElement('div');
+    d.className='shelf-item'+(i===idx?' active':'')+(i<idx?' done':'');
+    d.innerHTML=`<span class="emoji">${it.emoji}</span><span class="num">${it.price} ₽</span>`;
+    shelf.appendChild(d);
+  });
+}
+
+function paint(){
+  const tb=document.getElementById('tensBox'), ub=document.getElementById('unitsBox');
+  tb.innerHTML=''; ub.innerHTML='';
+  for(let i=0;i<tens;i++){
+    const rod=document.createElement('div');
+    rod.className='rod';
+    for(let k=0;k<10;k++){const sq=document.createElement('div');sq.className='sq';rod.appendChild(sq);}
+    tb.appendChild(rod);
+  }
+  for(let i=0;i<units;i++){
+    const u=document.createElement('div');
+    u.className='unit';
+    ub.appendChild(u);
+  }
+  const total=tens*10+units;
+  const t=items[idx];
+  const totalEl=document.getElementById('total');
+  totalEl.textContent=total+' ₽';
+  totalEl.classList.remove('over','exact');
+  if(total>t.price) totalEl.classList.add('over');
+  else if(total===t.price) totalEl.classList.add('exact');
+}
+
+function pay(){
+  const t=items[idx];
+  const total=tens*10+units;
+  const m=document.getElementById('msg');
+  if(total<t.price){
+    beep(220,.2,'square');
+    m.className='msg err';
+    m.textContent='❌ Не хватает '+(t.price-total)+' ₽. Добавь ещё блоков.';
+    return;
+  }
+  if(total>t.price){
+    beep(220,.2,'square');
+    m.className='msg err';
+    m.textContent='❌ Слишком много! Убери '+(total-t.price)+' ₽.';
+    return;
+  }
+  paid=true;
+  score+=10;
+  beep(880,.18); setTimeout(()=>beep(1100,.2),150);
+  scoreEl.textContent='⭐ '+score;
+  m.className='msg ok';
+  m.textContent='✅ Куплено! '+t.name+' за '+t.price+' ₽ = '+tens+' дес. + '+units+' ед.';
+
+  const toy=document.getElementById('toy');
+  toy.style.transition='transform .9s, opacity .9s';
+  toy.style.transform='translateY(200px) scale(.3) rotate(20deg)';
+  toy.style.opacity='0';
+
+  document.querySelectorAll('.controls button').forEach(b=>b.disabled=true);
+  setTimeout(()=>{idx++;render();},1600);
+}
+
+function end(){
+  bar.style.width='100%';
+  body.innerHTML=`<div class="final">
+    <h2>🎉 Все покупки сделаны!</h2>
+    <p>Ты заработал ${score} звёзд из ${items.length*10}</p>
+    <button class="btn-again" onclick="location.reload()">Играть снова</button>
+  </div>`;
+  beep(660,.15);setTimeout(()=>beep(880,.25),150);
+}
+
+render();
+</script>
+</body>
+</html>

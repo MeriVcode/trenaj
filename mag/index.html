@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Магазин десятков и единиц</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;font-family:'Segoe UI',system-ui,sans-serif}
+body{min-height:100vh;display:flex;align-items:center;justify-content:center;
+  background:linear-gradient(135deg,#6a11cb 0%,#2575fc 100%);padding:14px}
+.game{width:100%;max-width:900px;background:#fff;border-radius:26px;
+  box-shadow:0 24px 60px rgba(0,0,0,.35);overflow:hidden}
+.top{background:linear-gradient(135deg,#2575fc,#6a11cb);color:#fff;
+  padding:18px 24px;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.top h1{font-size:24px;font-weight:700}
+.badges{display:flex;gap:8px}
+.badge{background:rgba(255,255,255,.22);padding:8px 18px;border-radius:20px;
+  font-size:18px;font-weight:700}
+.body{padding:26px}
+.task{text-align:center;font-size:28px;color:#1e293b;margin-bottom:18px;font-weight:600}
+.task b{color:#6a11cb;font-size:42px}
+
+/* ---------- Полка с десятками и единицами ---------- */
+.shelf{background:#f1f5f9;border-radius:18px;padding:16px 18px;margin-bottom:12px}
+.shelf-label{font-size:16px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px}
+.shelf-items{display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end;min-height:210px}
+
+/* Десяток — столбик из 10 квадратиков */
+.rod{
+  width:26px;height:200px;
+  display:grid;grid-template-rows:repeat(10,1fr);
+  gap:1px;padding:2px;
+  background:#1e40af;
+  border-radius:6px;
+  box-shadow:0 5px 12px rgba(37,99,235,.4);
+  cursor:pointer;
+  animation:pop .25s ease;
+  flex-shrink:0;
+}
+.rod .sq{
+  background:linear-gradient(180deg,#60a5fa,#2563eb);
+  border-radius:2px;
+}
+
+/* Единица — такой же по размеру жёлтый квадратик */
+.unit{
+  width:22px;height:18px;
+  border-radius:3px;
+  background:linear-gradient(180deg,#fcd34d,#f59e0b);
+  box-shadow:0 3px 6px rgba(245,158,11,.35);
+  cursor:pointer;
+  animation:pop .25s ease;
+}
+
+@keyframes pop{0%{transform:scale(0);opacity:0}70%{transform:scale(1.15)}100%{transform:scale(1);opacity:1}}
+
+.eq{text-align:center;font-size:26px;font-weight:700;color:#334155;margin:16px 0 20px}
+.eq span{color:#2563eb}.eq i{color:#f59e0b;font-style:normal}
+
+.controls{display:flex;gap:12px;flex-wrap:wrap;justify-content:center}
+button{font-family:inherit;font-size:20px;font-weight:700;border:none;border-radius:14px;
+  padding:14px 26px;cursor:pointer;transition:transform .12s}
+button:active{transform:scale(.94)}
+.btn-ten{background:linear-gradient(135deg,#3b82f6,#2563eb);color:#fff;box-shadow:0 5px 0 #1d4ed8}
+.btn-one{background:linear-gradient(135deg,#fbbf24,#f59e0b);color:#fff;box-shadow:0 5px 0 #d97706}
+.btn-ok{background:linear-gradient(135deg,#34d399,#10b981);color:#fff;box-shadow:0 5px 0 #059669}
+.btn-ok:disabled{background:#cbd5e1;box-shadow:0 5px 0 #94a3b8;cursor:not-allowed}
+.btn-reset{background:#e2e8f0;color:#475569;box-shadow:0 5px 0 #cbd5e1}
+
+/* ---------- Сравнение ---------- */
+.compare{display:flex;justify-content:center;align-items:center;gap:20px;margin:24px 0}
+.num-card{width:130px;height:150px;border-radius:22px;display:flex;align-items:center;
+  justify-content:center;font-size:56px;font-weight:800;color:#fff;
+  background:linear-gradient(135deg,#2575fc,#6a11cb);box-shadow:0 12px 24px rgba(37,99,235,.35)}
+.croc{font-size:52px}
+.signs{display:flex;gap:16px;justify-content:center;margin-top:8px}
+.sign{width:88px;height:88px;border-radius:20px;font-size:42px;font-weight:800;
+  background:#f1f5f9;color:#334155;box-shadow:0 5px 0 #cbd5e1}
+.sign:hover{background:#e0e7ff;color:#4338ca}
+
+.msg{text-align:center;font-size:22px;font-weight:700;min-height:32px;margin-top:16px}
+.msg.ok{color:#10b981}.msg.err{color:#ef4444}
+.final{text-align:center;padding:30px 10px}
+.final h2{font-size:40px;color:#6a11cb;margin-bottom:14px}
+.final p{font-size:24px;color:#475569;margin-bottom:22px}
+.progress{height:8px;background:#e2e8f0;overflow:hidden}
+.progress i{display:block;height:100%;background:linear-gradient(90deg,#2575fc,#6a11cb);
+  transition:width .4s}
+</style>
+</head>
+<body>
+<div class="game">
+  <div class="top">
+    <h1>🏪 Магазин десятков и единиц</h1>
+    <div class="badges">
+      <div class="badge" id="round">1 / 8</div>
+      <div class="badge" id="score">⭐ 0</div>
+    </div>
+  </div>
+  <div class="body" id="body"></div>
+  <div class="progress"><i id="bar" style="width:0%"></i></div>
+</div>
+<script>
+const body=document.getElementById('body'),roundEl=document.getElementById('round'),
+      scoreEl=document.getElementById('score'),bar=document.getElementById('bar');
+const tasks=[
+  {t:'build',n:42},{t:'build',n:57},{t:'build',n:23},{t:'build',n:70},{t:'build',n:64},
+  {t:'compare',a:42,b:74},{t:'compare',a:35,b:53},{t:'compare',a:60,b:59}
+];
+let idx=0,score=0,tens=0,ones=0,done=false;
+
+function beep(f,d,type='sine'){try{
+  const c=beep.c||(beep.c=new (window.AudioContext||window.webkitAudioContext)());
+  const o=c.createOscillator(),g=c.createGain();o.type=type;o.frequency.value=f;
+  o.connect(g);g.connect(c.destination);g.gain.setValueAtTime(.08,c.currentTime);
+  g.gain.exponentialRampToValueAtTime(.001,c.currentTime+d);o.start();o.stop(c.currentTime+d);
+}catch(e){}}
+
+function upd(){
+  roundEl.textContent=Math.min(idx+1,tasks.length)+' / '+tasks.length;
+  scoreEl.textContent='⭐ '+score;
+  bar.style.width=(idx/tasks.length*100)+'%';
+}
+
+function render(){
+  done=false;upd();
+  const t=tasks[idx];
+  if(!t){return end();}
+  t.t==='build'?renderBuild(t):renderCompare(t);
+}
+
+function renderBuild(t){
+  tens=0;ones=0;
+  body.innerHTML=`
+    <div class="task">Собери число <b>${t.n}</b></div>
+    <div class="shelf"><div class="shelf-label">🟦 Десятки (по 10 квадратиков)</div>
+      <div class="shelf-items" id="tensRow"></div></div>
+    <div class="shelf"><div class="shelf-label">🟨 Единицы</div>
+      <div class="shelf-items" id="onesRow"></div></div>
+    <div class="eq" id="eq"></div>
+    <div class="controls">
+      <button class="btn-ten" id="addT">+ 10</button>
+      <button class="btn-one" id="addO">+ 1</button>
+      <button class="btn-reset" id="reset">Сброс</button>
+      <button class="btn-ok" id="ok" disabled>Проверить</button>
+    </div>
+    <div class="msg" id="msg"></div>`;
+  document.getElementById('addT').onclick=()=>{if(tens<9){tens++;beep(520,.06);updateBuild();}};
+  document.getElementById('addO').onclick=()=>{if(ones<9){ones++;beep(660,.06);updateBuild();}};
+  document.getElementById('reset').onclick=()=>{tens=0;ones=0;updateBuild();};
+  document.getElementById('ok').onclick=()=>{
+    done=true;score+=10;beep(880,.18);
+    const m=document.getElementById('msg');
+    m.className='msg ok';
+    m.textContent='✅ Верно! '+t.n+' = '+tens+' дес. + '+ones+' ед.';
+    document.getElementById('ok').disabled=true;
+    scoreEl.textContent='⭐ '+score;
+    setTimeout(()=>{idx++;render();},1100);
+  };
+  updateBuild();
+}
+
+function updateBuild(){
+  const t=tasks[idx];
+  const tr=document.getElementById('tensRow'),or=document.getElementById('onesRow');
+  tr.innerHTML='';or.innerHTML='';
+
+  // Десятки — столбик из 10 маленьких квадратиков
+  for(let i=0;i<tens;i++){
+    const rod=document.createElement('div');
+    rod.className='rod';
+    rod.title='1 десяток = 10 единиц';
+    for(let k=0;k<10;k++){
+      const sq=document.createElement('div');
+      sq.className='sq';
+      rod.appendChild(sq);
+    }
+    rod.onclick=()=>{tens--;updateBuild();};
+    tr.appendChild(rod);
+  }
+
+  // Единицы — маленькие жёлтые квадратики
+  for(let i=0;i<ones;i++){
+    const d=document.createElement('div');
+    d.className='unit';
+    d.onclick=()=>{ones--;updateBuild();};
+    or.appendChild(d);
+  }
+
+  document.getElementById('eq').innerHTML=
+    `${tens} дес. + ${ones} ед. = <span>${tens*10}</span> + <i>${ones}</i> = ${tens*10+ones}`;
+  const ok=document.getElementById('ok');
+  if(ok)ok.disabled=done||(tens*10+ones!==t.n);
+}
+
+function renderCompare(t){
+  body.innerHTML=`
+    <div class="task">Сравни числа 🐊</div>
+    <div class="compare">
+      <div class="num-card">${t.a}</div>
+      <div class="croc">🐊</div>
+      <div class="num-card">${t.b}</div>
+    </div>
+    <div class="signs">
+      <button class="sign" data-s="&gt;">&gt;</button>
+      <button class="sign" data-s="&lt;">&lt;</button>
+      <button class="sign" data-s="=">=</button>
+    </div>
+    <div class="msg" id="msg"></div>`;
+  const correct = t.a>t.b?'>':t.a<t.b?'<':'=';
+  document.querySelectorAll('.sign').forEach(b=>{
+    b.onclick=()=>{
+      if(done)return;
+      if(b.dataset.s===correct){
+        done=true;score+=10;beep(880,.18);
+        const m=document.getElementById('msg');
+        m.className='msg ok';
+        m.textContent='✅ Верно! '+(t.a>t.b?'Больше десятков':t.a<t.b?'Меньше десятков':'Равны');
+        scoreEl.textContent='⭐ '+score;
+        setTimeout(()=>{idx++;render();},1100);
+      }else{
+        beep(220,.2,'square');
+        const m=document.getElementById('msg');
+        m.className='msg err';
+        m.textContent='❌ Подумай: где больше десятков?';
+      }
+    };
+  });
+}
+
+function end(){
+  bar.style.width='100%';
+  body.innerHTML=`<div class="final">
+    <h2>🎉 Молодец!</h2>
+    <p>Ты набрал <b>${score}</b> звёзд из ${tasks.length*10}</p>
+    <button class="btn-ok" onclick="location.reload()">Играть снова</button>
+  </div>`;
+  beep(660,.15);setTimeout(()=>beep(880,.25),150);
+}
+
+render();
+</script>
+</body>
+</html>
