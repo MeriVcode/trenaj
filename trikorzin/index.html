@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Три корзины смысла — синонимы, антонимы, омонимы</title>
+<style>
+  * { box-sizing: border-box; }
+  html { font-size: 20px; }
+  body {
+    margin: 0;
+    font-family: "Segoe UI", "Arial", sans-serif;
+    background: linear-gradient(160deg, #eaf4ff 0%, #f6f0ff 100%);
+    color: #1f2b45;
+    min-height: 100vh;
+    padding: 20px;
+    font-size: 1.15rem;
+    line-height: 1.5;
+  }
+  h1 {
+    font-size: 2.4rem;
+    text-align: center;
+    margin: 10px 0 6px;
+    color: #23407a;
+    letter-spacing: .5px;
+  }
+  .subtitle {
+    text-align: center;
+    font-size: 1.4rem;
+    color: #5a6b8c;
+    margin-bottom: 24px;
+    font-weight: 600;
+  }
+  .rule {
+    max-width: 1100px;
+    margin: 0 auto 24px;
+    background: #ffffff;
+    border-left: 8px solid #4a7dff;
+    border-radius: 14px;
+    padding: 18px 24px;
+    font-size: 1.25rem;
+    line-height: 1.6;
+    box-shadow: 0 4px 16px rgba(60,90,160,.10);
+  }
+  .rule b { color: #23407a; }
+  .rule ol { margin: 8px 0 0 24px; padding: 0; }
+  .rule ol li { margin-bottom: 6px; }
+
+  .cards-area {
+    max-width: 1100px;
+    margin: 0 auto 26px;
+    background: #ffffff;
+    border-radius: 18px;
+    padding: 20px;
+    box-shadow: 0 6px 22px rgba(60,90,160,.10);
+  }
+  .cards-area h2 {
+    font-size: 1.6rem;
+    margin: 0 0 16px;
+    color: #23407a;
+    text-align: center;
+  }
+  .cards {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    justify-content: center;
+    min-height: 90px;
+  }
+  .card {
+    background: #fff8e1;
+    border: 4px solid #ffc846;
+    border-radius: 14px;
+    padding: 20px 26px;
+    font-size: 1.5rem;
+    font-weight: 700;
+    cursor: pointer;
+    user-select: none;
+    transition: transform .15s, box-shadow .15s, border-color .15s;
+    box-shadow: 0 4px 10px rgba(180,140,20,.20);
+    text-align: center;
+    line-height: 1.3;
+  }
+  .card:hover { transform: translateY(-3px); box-shadow: 0 8px 18px rgba(180,140,20,.30); }
+  .card.selected {
+    border-color: #4a7dff;
+    background: #dbe7ff;
+    box-shadow: 0 0 0 6px rgba(74,125,255,.28);
+    transform: scale(1.05);
+  }
+  .card.correct {
+    border-color: #2fb457;
+    background: #e2f8e9;
+    cursor: default;
+  }
+  .card.wrong {
+    border-color: #e04b4b;
+    background: #ffe3e3;
+    animation: shake .35s;
+  }
+  @keyframes shake {
+    0%,100% { transform: translateX(0); }
+    25% { transform: translateX(-8px); }
+    75% { transform: translateX(8px); }
+  }
+
+  .baskets {
+    max-width: 1100px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 18px;
+  }
+  .basket {
+    background: #ffffff;
+    border: 4px dashed #b9c7e6;
+    border-radius: 18px;
+    padding: 16px;
+    min-height: 240px;
+    display: flex;
+    flex-direction: column;
+    transition: background .15s, border-color .15s;
+  }
+  .basket.over {
+    background: #eef4ff;
+    border-color: #4a7dff;
+    border-style: solid;
+  }
+  .basket.checked-ok { border-color: #2fb457; border-style: solid; background: #f1fbf4; }
+  .basket.checked-bad { border-color: #e04b4b; border-style: solid; background: #fff5f5; }
+
+  .basket-title {
+    font-size: 1.5rem;
+    font-weight: 800;
+    text-align: center;
+    padding: 10px;
+    border-radius: 12px;
+    margin-bottom: 14px;
+  }
+  .basket[data-type="syn"] .basket-title { background: #dbe7ff; color: #23407a; }
+  .basket[data-type="ant"] .basket-title { background: #ffe0e9; color: #8a2350; }
+  .basket[data-type="hom"] .basket-title { background: #e0f6e6; color: #1d6b3a; }
+
+  .basket-drop {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .basket-drop .card {
+    font-size: 1.25rem;
+    padding: 14px 16px;
+    background: #ffffff;
+    border-width: 3px;
+  }
+  .basket-drop .card.correct { background: #e2f8e9; }
+  .basket-drop .card.wrong { background: #ffe3e3; }
+
+  .controls {
+    max-width: 1100px;
+    margin: 28px auto 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    justify-content: center;
+  }
+  button {
+    font-family: inherit;
+    font-size: 1.4rem;
+    font-weight: 800;
+    padding: 16px 34px;
+    border: none;
+    border-radius: 14px;
+    cursor: pointer;
+    transition: transform .12s, box-shadow .12s, opacity .12s;
+  }
+  button:hover { transform: translateY(-2px); }
+  button:active { transform: translateY(0); }
+  .btn-check { background: #4a7dff; color: #fff; box-shadow: 0 5px 14px rgba(74,125,255,.45); }
+  .btn-check:disabled { opacity: .45; cursor: not-allowed; transform: none; }
+  .btn-reset { background: #eef1f7; color: #3a4a6b; box-shadow: 0 5px 14px rgba(60,90,160,.18); }
+  .btn-help  { background: #ffc846; color: #4a3a00; box-shadow: 0 5px 14px rgba(255,200,70,.55); }
+
+  .message {
+    max-width: 1100px;
+    margin: 22px auto 0;
+    padding: 18px 24px;
+    border-radius: 14px;
+    font-size: 1.35rem;
+    text-align: center;
+    display: none;
+    line-height: 1.55;
+    font-weight: 600;
+  }
+  .message.show { display: block; }
+  .message.ok { background: #e2f8e9; color: #1d6b3a; border: 3px solid #2fb457; }
+  .message.info { background: #fff8e1; color: #6b5300; border: 3px solid #ffc846; }
+  .message.err { background: #ffe3e3; color: #8a1f1f; border: 3px solid #e04b4b; }
+
+  .hint-box {
+    max-width: 1100px;
+    margin: 20px auto 0;
+    background: #fff8e1;
+    border: 3px solid #ffc846;
+    border-radius: 14px;
+    padding: 18px 24px;
+    font-size: 1.3rem;
+    line-height: 1.6;
+    display: none;
+  }
+  .hint-box.show { display: block; }
+  .hint-box b { color: #6b5300; }
+
+  @media (max-width: 780px) {
+    html { font-size: 18px; }
+    .baskets { grid-template-columns: 1fr; }
+    h1 { font-size: 2rem; }
+    .card { font-size: 1.35rem; padding: 16px 20px; }
+    .basket-drop .card { font-size: 1.15rem; }
+    button { font-size: 1.2rem; padding: 14px 24px; }
+  }
+</style>
+</head>
+<body>
+
+<h1>Три корзины смысла</h1>
+<p class="subtitle">Синонимы • Антонимы • Омонимы — 3 класс</p>
+
+<div class="rule">
+  <b>Как играть:</b>
+  <ol>
+    <li>Возьми одну карточку — щёлкни по ней или перетащи в корзину.</li>
+    <li>Подумай: слова близкие по смыслу, противоположные по смыслу или одинаковые по форме, но разные по значению?</li>
+    <li>Положи карточку в нужную корзину: <b>С</b> — синонимы, <b>А</b> — антонимы, <b>О</b> — омонимы.</li>
+    <li>Когда карточки закончатся, нажми «Проверить».</li>
+  </ol>
+</div>
+
+<div class="cards-area">
+  <h2>Карточки</h2>
+  <div class="cards" id="cards"></div>
+</div>
+
+<div class="baskets">
+  <div class="basket" data-type="syn">
+    <div class="basket-title">С — синонимы</div>
+    <div class="basket-drop" data-type="syn"></div>
+  </div>
+  <div class="basket" data-type="ant">
+    <div class="basket-title">А — антонимы</div>
+    <div class="basket-drop" data-type="ant"></div>
+  </div>
+  <div class="basket" data-type="hom">
+    <div class="basket-title">О — омонимы</div>
+    <div class="basket-drop" data-type="hom"></div>
+  </div>
+</div>
+
+<div class="controls">
+  <button class="btn-help" id="btnHelp">Подсказка</button>
+  <button class="btn-check" id="btnCheck" disabled>Проверить</button>
+  <button class="btn-reset" id="btnReset">Сначала</button>
+</div>
+
+<div class="hint-box" id="hintBox">
+  <b>Подсказка.</b>
+  <br>• Если значения слов близкие (смелый — храбрый), это <b>синонимы</b>.
+  <br>• Если значения противоположные (день — ночь), это <b>антонимы</b>.
+  <br>• Если слово одно и то же, но у него разные значения (ключ от двери — ключ-родник), это <b>омонимы</b>.
+</div>
+
+<div class="message" id="message"></div>
+
+<script>
+(function () {
+  "use strict";
+
+  const CARDS = [
+    { id: 1, text: "смелый — храбрый",                     type: "syn" },
+    { id: 2, text: "день — ночь",                          type: "ant" },
+    { id: 3, text: "ключ (от двери) — ключ (родник)",      type: "hom" },
+    { id: 4, text: "горячий — холодный",                   type: "ant" },
+    { id: 5, text: "большой — огромный",                   type: "syn" },
+    { id: 6, text: "коса (девичья) — коса (инструмент)",   type: "hom" }
+  ];
+
+  const cardsBox    = document.getElementById("cards");
+  const basketsDrop = document.querySelectorAll(".basket-drop");
+  const baskets     = document.querySelectorAll(".basket");
+  const btnCheck    = document.getElementById("btnCheck");
+  const btnReset    = document.getElementById("btnReset");
+  const btnHelp     = document.getElementById("btnHelp");
+  const hintBox     = document.getElementById("hintBox");
+  const message     = document.getElementById("message");
+
+  let selectedCard = null;
+
+  function shuffle(arr) {
+    const a = arr.slice();
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  }
+
+  function createCard(data) {
+    const el = document.createElement("div");
+    el.className = "card";
+    el.textContent = data.text;
+    el.dataset.id = data.id;
+    el.dataset.type = data.type;
+    el.setAttribute("role", "button");
+    el.setAttribute("tabindex", "0");
+    el.draggable = true;
+
+    el.addEventListener("click", () => onCardClick(el));
+    el.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        onCardClick(el);
+      }
+    });
+
+    el.addEventListener("dragstart", (e) => {
+      if (el.classList.contains("correct")) { e.preventDefault(); return; }
+      e.dataTransfer.setData("text/plain", el.dataset.id);
+      e.dataTransfer.effectAllowed = "move";
+      el.classList.add("selected");
+      selectedCard = el;
+    });
+    el.addEventListener("dragend", () => {
+      el.classList.remove("selected");
+      selectedCard = null;
+    });
+
+    return el;
+  }
+
+  function onCardClick(el) {
+    if (el.classList.contains("correct")) return;
+    if (selectedCard === el) {
+      el.classList.remove("selected");
+      selectedCard = null;
+      return;
+    }
+    if (selectedCard) selectedCard.classList.remove("selected");
+    el.classList.add("selected");
+    selectedCard = el;
+  }
+
+  basketsDrop.forEach((drop) => {
+    drop.parentElement.addEventListener("click", (e) => {
+      if (e.target.closest(".card")) return;
+      if (!selectedCard) {
+        flashMessage("Сначала выбери карточку, потом нажми на корзину.", "info");
+        return;
+      }
+      moveCardToBasket(selectedCard, drop);
+      selectedCard.classList.remove("selected");
+      selectedCard = null;
+    });
+
+    drop.parentElement.addEventListener("dragover", (e) => {
+      e.preventDefault();
+      e.dataTransfer.dropEffect = "move";
+      drop.parentElement.classList.add("over");
+    });
+    drop.parentElement.addEventListener("dragleave", () => {
+      drop.parentElement.classList.remove("over");
+    });
+    drop.parentElement.addEventListener("drop", (e) => {
+      e.preventDefault();
+      drop.parentElement.classList.remove("over");
+      const id = e.dataTransfer.getData("text/plain");
+      const el = cardsBox.querySelector('.card[data-id="' + id + '"]')
+             || document.querySelector('.basket-drop .card[data-id="' + id + '"]');
+      if (el) moveCardToBasket(el, drop);
+    });
+  });
+
+  function moveCardToBasket(card, drop) {
+    if (card.classList.contains("correct")) return;
+    card.classList.remove("wrong", "selected");
+    drop.appendChild(card);
+    clearBasketMarks();
+    updateCheckButton();
+    hideMessage();
+  }
+
+  function clearBasketMarks() {
+    baskets.forEach((b) => b.classList.remove("checked-ok", "checked-bad", "over"));
+    document.querySelectorAll(".card").forEach((c) => c.classList.remove("correct", "wrong"));
+  }
+
+  function allCardsPlaced() {
+    return cardsBox.children.length === 0;
+  }
+  function updateCheckButton() {
+    btnCheck.disabled = !allCardsPlaced();
+  }
+
+  function flashMessage(text, kind) {
+    message.textContent = text;
+    message.className = "message show " + kind;
+    clearTimeout(flashMessage._t);
+    flashMessage._t = setTimeout(hideMessage, 4000);
+  }
+  function hideMessage() {
+    message.className = "message";
+    message.textContent = "";
+  }
+
+  function checkAnswer() {
+    if (!allCardsPlaced()) return;
+    let allCorrect = true;
+    let basketResults = { syn: 0, ant: 0, hom: 0 };
+    let basketTotals  = { syn: 0, ant: 0, hom: 0 };
+
+    baskets.forEach((basket) => {
+      const type = basket.dataset.type;
+      const drop = basket.querySelector(".basket-drop");
+      const cards = drop.querySelectorAll(".card");
+      basketTotals[type] = cards.length;
+      let basketOk = true;
+
+      cards.forEach((card) => {
+        if (card.dataset.type === type) {
+          card.classList.add("correct");
+          card.classList.remove("wrong");
+          basketResults[type]++;
+        } else {
+          card.classList.add("wrong");
+          card.classList.remove("correct");
+          basketOk = false;
+          allCorrect = false;
+        }
+      });
+
+      basket.classList.remove("checked-ok", "checked-bad");
+      if (cards.length > 0) {
+        basket.classList.add(basketOk ? "checked-ok" : "checked-bad");
+      }
+    });
+
+    if (allCorrect) {
+      message.innerHTML =
+        "✅ <b>Молодец!</b> Все 6 карточек разложены верно: " +
+        "2 синонима, 2 антонима, 2 омонима.";
+      message.className = "message show ok";
+    } else {
+      let wrongCount = 0;
+      document.querySelectorAll(".basket-drop .card.wrong").forEach(() => wrongCount++);
+      let hint = buildHint(basketResults, basketTotals);
+      message.innerHTML =
+        "❌ Есть ошибки: " + wrongCount + ". " + hint;
+      message.className = "message show err";
+    }
+  }
+
+  function buildHint(results, totals) {
+    const hints = [];
+    if (results.syn < totals.syn) {
+      hints.push("Слова <b>смелый — храбрый</b> и <b>большой — огромный</b> близкие по значению — это синонимы.");
+    }
+    if (results.ant < totals.ant) {
+      hints.push("Слова <b>день — ночь</b> и <b>горячий — холодный</b> противоположны по значению — это антонимы.");
+    }
+    if (results.hom < totals.hom) {
+      hints.push("В парах <b>ключ (от двери) — ключ (родник)</b> и <b>коса (девичья) — коса (инструмент)</b> слово одно, а значения разные — это омонимы.");
+    }
+    if (hints.length === 0) {
+      return "Проверь, все ли карточки лежат в подходящих корзинах.";
+    }
+    return "Запомни: " + hints.join(" ");
+  }
+
+  function resetGame() {
+    cardsBox.innerHTML = "";
+    basketsDrop.forEach((d) => (d.innerHTML = ""));
+    clearBasketMarks();
+    hideMessage();
+    hintBox.classList.remove("show");
+    selectedCard = null;
+    buildBoard();
+    updateCheckButton();
+  }
+
+  function buildBoard() {
+    shuffle(CARDS).forEach((data) => {
+      cardsBox.appendChild(createCard(data));
+    });
+  }
+
+  btnCheck.addEventListener("click", checkAnswer);
+  btnReset.addEventListener("click", resetGame);
+  btnHelp.addEventListener("click", () => {
+    hintBox.classList.toggle("show");
+  });
+
+  buildBoard();
+  updateCheckButton();
+})();
+</script>
+</body>
+</html>

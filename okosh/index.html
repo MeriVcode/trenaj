@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Смысловые окошки — синонимы, антонимы, омонимы</title>
+<style>
+  * { box-sizing: border-box; }
+  html { font-size: 20px; }
+  body {
+    margin: 0;
+    font-family: "Segoe UI", "Arial", sans-serif;
+    background: linear-gradient(160deg, #eaf4ff 0%, #f6f0ff 100%);
+    color: #1f2b45;
+    min-height: 100vh;
+    padding: 20px;
+    font-size: 1.15rem;
+    line-height: 1.5;
+  }
+  h1 {
+    font-size: 2.4rem;
+    text-align: center;
+    margin: 10px 0 6px;
+    color: #23407a;
+    letter-spacing: .5px;
+  }
+  .subtitle {
+    text-align: center;
+    font-size: 1.4rem;
+    color: #5a6b8c;
+    margin-bottom: 24px;
+    font-weight: 600;
+  }
+  .rule {
+    max-width: 1100px;
+    margin: 0 auto 24px;
+    background: #ffffff;
+    border-left: 8px solid #4a7dff;
+    border-radius: 14px;
+    padding: 18px 24px;
+    font-size: 1.25rem;
+    line-height: 1.6;
+    box-shadow: 0 4px 16px rgba(60,90,160,.10);
+  }
+  .rule b { color: #23407a; }
+  .rule ol { margin: 8px 0 0 24px; padding: 0; }
+  .rule ol li { margin-bottom: 6px; }
+
+  .story-area {
+    max-width: 1100px;
+    margin: 0 auto 24px;
+    background: #ffffff;
+    border-radius: 18px;
+    padding: 26px 30px;
+    box-shadow: 0 6px 22px rgba(60,90,160,.10);
+  }
+  .story {
+    font-size: 1.5rem;
+    line-height: 2.4;
+    margin: 0;
+    color: #1f2b45;
+  }
+  .gap {
+    display: inline-block;
+    min-width: 150px;
+    padding: 4px 14px;
+    margin: 0 4px;
+    border-bottom: 4px dashed #8fa7d6;
+    background: #f4f8ff;
+    border-radius: 8px 8px 0 0;
+    cursor: pointer;
+    text-align: center;
+    font-weight: 700;
+    color: #23407a;
+    vertical-align: baseline;
+    transition: background .15s, border-color .15s, transform .12s;
+    user-select: none;
+    line-height: 1.4;
+  }
+  .gap:hover {
+    background: #e4efff;
+    border-bottom-color: #4a7dff;
+  }
+  .gap:empty::before {
+    content: "…";
+    color: #8fa7d6;
+    font-weight: 500;
+  }
+  .gap.filled {
+    background: #dbe7ff;
+    border-bottom-color: #4a7dff;
+  }
+  .gap.gap-correct {
+    background: #e2f8e9;
+    border-bottom-color: #2fb457;
+    color: #1d6b3a;
+  }
+  .gap.gap-wrong {
+    background: #ffe3e3;
+    border-bottom-color: #e04b4b;
+    color: #8a1f1f;
+    animation: shake .4s;
+  }
+  .gap.gap-empty {
+    background: #fff8e1;
+    border-bottom-color: #ffc846;
+  }
+  @keyframes shake {
+    0%,100% { transform: translateX(0); }
+    25%     { transform: translateX(-6px); }
+    75%     { transform: translateX(6px); }
+  }
+
+  .bank-area {
+    max-width: 1100px;
+    margin: 0 auto 24px;
+    background: #ffffff;
+    border-radius: 18px;
+    padding: 20px 24px;
+    box-shadow: 0 6px 22px rgba(60,90,160,.10);
+  }
+  .bank-title {
+    font-size: 1.35rem;
+    font-weight: 800;
+    color: #23407a;
+    text-align: center;
+    margin-bottom: 14px;
+  }
+  .bank {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    justify-content: center;
+  }
+  .word {
+    background: #fff8e1;
+    border: 4px solid #ffc846;
+    border-radius: 14px;
+    padding: 16px 26px;
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: #4a3a00;
+    cursor: pointer;
+    user-select: none;
+    transition: transform .15s, box-shadow .15s, background .15s, border-color .15s;
+    box-shadow: 0 4px 10px rgba(180,140,20,.20);
+    text-align: center;
+  }
+  .word:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 18px rgba(180,140,20,.30);
+  }
+  .word.selected {
+    background: #dbe7ff;
+    border-color: #4a7dff;
+    color: #23407a;
+    box-shadow: 0 0 0 6px rgba(74,125,255,.25);
+    transform: scale(1.05);
+  }
+
+  .controls {
+    max-width: 1100px;
+    margin: 0 auto;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    justify-content: center;
+  }
+  button {
+    font-family: inherit;
+    font-size: 1.4rem;
+    font-weight: 800;
+    padding: 16px 34px;
+    border: none;
+    border-radius: 14px;
+    cursor: pointer;
+    transition: transform .12s, box-shadow .12s, opacity .12s;
+  }
+  button:hover { transform: translateY(-2px); }
+  button:active { transform: translateY(0); }
+  .btn-check { background: #4a7dff; color: #fff; box-shadow: 0 5px 14px rgba(74,125,255,.45); }
+  .btn-reset { background: #eef1f7; color: #3a4a6b; box-shadow: 0 5px 14px rgba(60,90,160,.18); }
+  .btn-help  { background: #ffc846; color: #4a3a00; box-shadow: 0 5px 14px rgba(255,200,70,.55); }
+
+  .message {
+    max-width: 1100px;
+    margin: 22px auto 0;
+    padding: 18px 24px;
+    border-radius: 14px;
+    font-size: 1.35rem;
+    text-align: center;
+    display: none;
+    line-height: 1.6;
+    font-weight: 700;
+  }
+  .message.show { display: block; }
+  .message.ok   { background: #e2f8e9; color: #1d6b3a; border: 3px solid #2fb457; }
+  .message.err  { background: #ffe3e3; color: #8a1f1f; border: 3px solid #e04b4b; }
+  .message.info { background: #fff8e1; color: #6b5300; border: 3px solid #ffc846; }
+
+  .hint-box {
+    max-width: 1100px;
+    margin: 20px auto 0;
+    background: #fff8e1;
+    border: 3px solid #ffc846;
+    border-radius: 14px;
+    padding: 18px 24px;
+    font-size: 1.3rem;
+    line-height: 1.6;
+    display: none;
+  }
+  .hint-box.show { display: block; }
+  .hint-box b { color: #6b5300; }
+  .hint-box ul { margin: 8px 0 0 22px; padding: 0; }
+
+  .results {
+    max-width: 1100px;
+    margin: 22px auto 0;
+    background: #ffffff;
+    border-radius: 16px;
+    padding: 20px 24px;
+    box-shadow: 0 6px 22px rgba(60,90,160,.14);
+    display: none;
+  }
+  .results.show { display: block; }
+  .results h3 {
+    margin: 0 0 14px;
+    font-size: 1.5rem;
+    color: #23407a;
+    text-align: center;
+  }
+  .results table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 1.2rem;
+  }
+  .results th, .results td {
+    border-bottom: 2px solid #eef1f7;
+    padding: 10px 12px;
+    text-align: left;
+  }
+  .results th { color: #5a6b8c; font-size: 1.15rem; }
+  .results td:nth-child(2) { font-weight: 800; color: #23407a; }
+  .results td:last-child {
+    text-align: right;
+    font-weight: 800;
+  }
+  .results tr.syn td:last-child { color: #4a7dff; }
+  .results tr.ant td:last-child { color: #e04b80; }
+  .results tr.hom td:last-child { color: #2fb457; }
+
+  @media (max-width: 780px) {
+    html { font-size: 18px; }
+    h1 { font-size: 2rem; }
+    .story { font-size: 1.3rem; line-height: 2.2; }
+    .gap { min-width: 110px; }
+    .word { font-size: 1.3rem; padding: 12px 20px; }
+    button { font-size: 1.2rem; padding: 14px 24px; }
+  }
+</style>
+</head>
+<body>
+
+<h1>Смысловые окошки</h1>
+<p class="subtitle">Синонимы • Антонимы • Омонимы — 3 класс</p>
+
+<div class="rule">
+  <b>Как играть:</b>
+  <ol>
+    <li>Прочитай текст. В нём 4 «окошечка» — пустых места.</li>
+    <li>Выбери в банке подходящее слово — оно подсветится синим.</li>
+    <li>Нажми на «окошечко» — слово встанет на место.</li>
+    <li>Заполни все 4 окошечка и нажми «Проверить».</li>
+  </ol>
+</div>
+
+<div class="story-area">
+  <p class="story">
+    Этот пёс был смелый. Недаром соседи говорили, что он очень
+    <span class="gap" data-gap="1" data-answer="храбрый" data-type="syn"></span>.
+    Днём на улице светло, а ночью
+    <span class="gap" data-gap="2" data-answer="темно" data-type="ant"></span>.
+    Бабушка потеряла
+    <span class="gap" data-gap="3" data-answer="ключ" data-type="hom"></span>
+    от входной двери.
+    В овраге бил
+    <span class="gap" data-gap="4" data-answer="ключ" data-type="hom"></span>,
+    который пробивался из-под земли.
+  </p>
+</div>
+
+<div class="bank-area">
+  <div class="bank-title">Банк слов</div>
+  <div class="bank" id="bank">
+    <div class="word" data-word="храбрый">храбрый</div>
+    <div class="word" data-word="трусливый">трусливый</div>
+    <div class="word" data-word="темно">темно</div>
+    <div class="word" data-word="светло">светло</div>
+    <div class="word" data-word="ключ">ключ</div>
+    <div class="word" data-word="замок">замок</div>
+  </div>
+</div>
+
+<div class="controls">
+  <button class="btn-help" id="btnHelp">Подсказка</button>
+  <button class="btn-check" id="btnCheck">Проверить</button>
+  <button class="btn-reset" id="btnReset">Сначала</button>
+</div>
+
+<div class="hint-box" id="hintBox">
+  <b>Подсказка.</b>
+  <ul>
+    <li><b>Синонимы</b> — слова, близкие по значению: <i>смелый — храбрый</i>.</li>
+    <li><b>Антонимы</b> — слова, противоположные по значению: <i>светло — темно</i>.</li>
+    <li><b>Омонимы</b> — одно слово с разными значениями: <i>ключ</i> (от двери) и <i>ключ</i> (родник).</li>
+  </ul>
+</div>
+
+<div class="message" id="message"></div>
+
+<div class="results" id="results">
+  <h3>Что получилось</h3>
+  <table>
+    <thead>
+      <tr><th>Окошко</th><th>Слово</th><th>Отношение</th></tr>
+    </thead>
+    <tbody id="resultsBody"></tbody>
+  </table>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  const TYPE_LABEL = {
+    syn: "синонимы",
+    ant: "антонимы",
+    hom: "омонимы"
+  };
+
+  const gaps        = document.querySelectorAll(".gap");
+  const bank        = document.getElementById("bank");
+  const words       = bank.querySelectorAll(".word");
+  const btnCheck    = document.getElementById("btnCheck");
+  const btnReset    = document.getElementById("btnReset");
+  const btnHelp     = document.getElementById("btnHelp");
+  const hintBox     = document.getElementById("hintBox");
+  const message     = document.getElementById("message");
+  const results     = document.getElementById("results");
+  const resultsBody = document.getElementById("resultsBody");
+
+  let selectedWord = null;
+
+  // ---- Клик по слову ----
+  words.forEach((word) => {
+    word.addEventListener("click", () => {
+      if (selectedWord === word) {
+        word.classList.remove("selected");
+        selectedWord = null;
+        return;
+      }
+      if (selectedWord) selectedWord.classList.remove("selected");
+      word.classList.add("selected");
+      selectedWord = word;
+    });
+  });
+
+  // ---- Клик по окошечку ----
+  gaps.forEach((gap) => {
+    gap.addEventListener("click", () => onGapClick(gap));
+  });
+
+  function onGapClick(gap) {
+    // Убираем прошлые отметки проверки
+    gap.classList.remove("gap-correct", "gap-wrong", "gap-empty");
+    results.classList.remove("show");
+    hideMessage();
+
+    const hasWord = gap.textContent.trim() !== "";
+
+    if (hasWord && !selectedWord) {
+      // Очистить окошечко
+      gap.textContent = "";
+      gap.classList.remove("filled");
+      return;
+    }
+
+    if (!selectedWord) {
+      flashMessage("Сначала выбери слово из банка, а потом нажми на окошечко.", "info");
+      return;
+    }
+
+    // Ставим выбранное слово
+    gap.textContent = selectedWord.dataset.word;
+    gap.classList.add("filled");
+
+    // Снимаем выделение после вставки
+    selectedWord.classList.remove("selected");
+    selectedWord = null;
+  }
+
+  // ---- Сообщения ----
+  function flashMessage(text, kind) {
+    message.textContent = text;
+    message.className = "message show " + kind;
+    clearTimeout(flashMessage._t);
+    flashMessage._t = setTimeout(hideMessage, 4000);
+  }
+  function hideMessage() {
+    message.className = "message";
+    message.textContent = "";
+  }
+
+  // ---- Проверка ----
+  function checkAnswer() {
+    let filled = 0;
+    let correct = 0;
+    const wrongGaps = [];
+    const rows = [];
+
+    gaps.forEach((gap) => {
+      const answer = gap.dataset.answer;
+      const placed = gap.textContent.trim();
+      const n = gap.dataset.gap;
+      const type = gap.dataset.type;
+
+      gap.classList.remove("gap-correct", "gap-wrong", "gap-empty");
+
+      if (!placed) {
+        gap.classList.add("gap-empty");
+        wrongGaps.push(n);
+        return;
+      }
+      filled++;
+
+      if (placed === answer) {
+        gap.classList.add("gap-correct");
+        correct++;
+        rows.push({ n: n, word: placed, type: type, ok: true });
+      } else {
+        gap.classList.add("gap-wrong");
+        wrongGaps.push(n);
+        rows.push({ n: n, word: placed, type: type, ok: false, answer: answer });
+      }
+    });
+
+    if (filled < gaps.length) {
+      flashMessage("Заполни все 4 окошечка, а потом нажми «Проверить».", "info");
+      return;
+    }
+
+    if (correct === gaps.length) {
+      message.innerHTML =
+        "✅ <b>Молодец!</b> Все 4 окошечка заполнены верно." +
+        " Посмотри таблицу ниже — там видно, где синонимы, где антонимы, а где омонимы.";
+      message.className = "message show ok";
+      showResults(rows);
+    } else {
+      let hint = buildHint(wrongGaps);
+      message.innerHTML =
+        "❌ Правильных ответов: <b>" + correct + " из 4</b>. " + hint;
+      message.className = "message show err";
+      showResults(rows);
+    }
+  }
+
+  function buildHint(wrongGaps) {
+    const HINTS = {
+      "1": "В первом окошечке нужно слово, близкое по смыслу к слову <b>смелый</b>.",
+      "2": "Во втором окошечке нужно слово, противоположное по смыслу слову <b>светло</b>.",
+      "3": "В третьем окошечке — слово, которым открывают дверь. Это одно из значений слова <b>ключ</b>.",
+      "4": "В четвёртом окошечке — то же слово <b>ключ</b>, но в другом значении: родник, который бьёт из-под земли."
+    };
+    const list = wrongGaps
+      .map((n) => "<li>" + HINTS[n] + "</li>")
+      .join("");
+    return "Проверь окошечки: <ul style='text-align:left;margin:8px 0 0 22px;padding:0;'>" + list + "</ul>";
+  }
+
+  function showResults(rows) {
+    resultsBody.innerHTML = "";
+    rows.forEach((r) => {
+      const tr = document.createElement("tr");
+      tr.className = r.type;
+      const wordCell = r.ok
+        ? "<b>" + r.word + "</b>"
+        : "<b style='color:#8a1f1f;text-decoration:line-through;'>" + r.word +
+          "</b> → <b>" + r.answer + "</b>";
+      tr.innerHTML =
+        "<td>№ " + r.n + "</td>" +
+        "<td>" + wordCell + "</td>" +
+        "<td>" + TYPE_LABEL[r.type] + "</td>";
+      resultsBody.appendChild(tr);
+    });
+    results.classList.add("show");
+  }
+
+  // ---- Кнопки ----
+  btnCheck.addEventListener("click", checkAnswer);
+
+  btnReset.addEventListener("click", () => {
+    gaps.forEach((gap) => {
+      gap.textContent = "";
+      gap.classList.remove("filled", "gap-correct", "gap-wrong", "gap-empty");
+    });
+    words.forEach((w) => w.classList.remove("selected"));
+    selectedWord = null;
+    hideMessage();
+    results.classList.remove("show");
+    resultsBody.innerHTML = "";
+    hintBox.classList.remove("show");
+  });
+
+  btnHelp.addEventListener("click", () => {
+    hintBox.classList.toggle("show");
+  });
+
+})();
+</script>
+</body>
+</html>

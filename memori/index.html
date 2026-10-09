@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Мемори: пары значений — синонимы, антонимы, омонимы</title>
+<style>
+  * { box-sizing: border-box; }
+  html { font-size: 20px; }
+  body {
+    margin: 0;
+    font-family: "Segoe UI", "Arial", sans-serif;
+    background: linear-gradient(160deg, #eaf4ff 0%, #f6f0ff 100%);
+    color: #1f2b45;
+    min-height: 100vh;
+    padding: 20px;
+    font-size: 1.15rem;
+    line-height: 1.5;
+  }
+  h1 {
+    font-size: 2.4rem;
+    text-align: center;
+    margin: 10px 0 6px;
+    color: #23407a;
+    letter-spacing: .5px;
+  }
+  .subtitle {
+    text-align: center;
+    font-size: 1.4rem;
+    color: #5a6b8c;
+    margin-bottom: 24px;
+    font-weight: 600;
+  }
+  .rule {
+    max-width: 1100px;
+    margin: 0 auto 24px;
+    background: #ffffff;
+    border-left: 8px solid #4a7dff;
+    border-radius: 14px;
+    padding: 18px 24px;
+    font-size: 1.25rem;
+    line-height: 1.6;
+    box-shadow: 0 4px 16px rgba(60,90,160,.10);
+  }
+  .rule b { color: #23407a; }
+  .rule ol { margin: 8px 0 0 24px; padding: 0; }
+  .rule ol li { margin-bottom: 6px; }
+
+  .stats {
+    max-width: 1100px;
+    margin: 0 auto 20px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    justify-content: center;
+  }
+  .stat {
+    background: #ffffff;
+    border-radius: 14px;
+    padding: 14px 24px;
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #23407a;
+    box-shadow: 0 4px 14px rgba(60,90,160,.12);
+    min-width: 170px;
+    text-align: center;
+  }
+  .stat span { color: #4a7dff; }
+
+  .board {
+    max-width: 1100px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+  }
+
+  .memo-card {
+    aspect-ratio: 4 / 3;
+    perspective: 1000px;
+    cursor: pointer;
+    user-select: none;
+  }
+  .memo-card .inner {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    transition: transform .55s;
+    transform-style: preserve-3d;
+  }
+  .memo-card.flipped .inner,
+  .memo-card.matched .inner {
+    transform: rotateY(180deg);
+  }
+  .memo-card .face {
+    position: absolute;
+    inset: 0;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 12px;
+    font-weight: 800;
+    line-height: 1.3;
+  }
+  .memo-card .back {
+    background: linear-gradient(135deg, #4a7dff 0%, #7aa2ff 100%);
+    color: #ffffff;
+    font-size: 3rem;
+    box-shadow: 0 6px 18px rgba(74,125,255,.35);
+    border: 4px solid #3565d6;
+  }
+  .memo-card .front {
+    background: #ffffff;
+    color: #23407a;
+    font-size: 1.35rem;
+    transform: rotateY(180deg);
+    border: 4px solid #b9c7e6;
+    box-shadow: 0 6px 18px rgba(60,90,160,.18);
+  }
+  .memo-card .front[data-type="syn"] { border-color: #4a7dff; background: #eef4ff; }
+  .memo-card .front[data-type="ant"] { border-color: #e04b80; background: #ffeef4; }
+  .memo-card .front[data-type="hom"] { border-color: #2fb457; background: #eafaf0; }
+
+  .memo-card.matched { cursor: default; }
+  .memo-card.matched .front {
+    border-color: #2fb457;
+    background: #e2f8e9;
+    color: #1d6b3a;
+  }
+  .memo-card.matched .inner { animation: pop .4s; }
+  @keyframes pop {
+    0%   { transform: rotateY(180deg) scale(1); }
+    50%  { transform: rotateY(180deg) scale(1.08); }
+    100% { transform: rotateY(180deg) scale(1); }
+  }
+
+  .memo-card.wrong .front {
+    border-color: #e04b4b;
+    background: #ffe3e3;
+    color: #8a1f1f;
+    animation: shake .4s;
+  }
+  @keyframes shake {
+    0%,100% { transform: rotateY(180deg) translateX(0); }
+    25%     { transform: rotateY(180deg) translateX(-8px); }
+    75%     { transform: rotateY(180deg) translateX(8px); }
+  }
+  .memo-card.disabled { pointer-events: none; }
+
+  .controls {
+    max-width: 1100px;
+    margin: 28px auto 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    justify-content: center;
+  }
+  button {
+    font-family: inherit;
+    font-size: 1.4rem;
+    font-weight: 800;
+    padding: 16px 34px;
+    border: none;
+    border-radius: 14px;
+    cursor: pointer;
+    transition: transform .12s, box-shadow .12s, opacity .12s;
+  }
+  button:hover { transform: translateY(-2px); }
+  button:active { transform: translateY(0); }
+  .btn-reset { background: #4a7dff; color: #fff; box-shadow: 0 5px 14px rgba(74,125,255,.45); }
+  .btn-help  { background: #ffc846; color: #4a3a00; box-shadow: 0 5px 14px rgba(255,200,70,.55); }
+
+  .message {
+    max-width: 1100px;
+    margin: 22px auto 0;
+    padding: 18px 24px;
+    border-radius: 14px;
+    font-size: 1.35rem;
+    text-align: center;
+    display: none;
+    line-height: 1.55;
+    font-weight: 700;
+  }
+  .message.show { display: block; }
+  .message.ok   { background: #e2f8e9; color: #1d6b3a; border: 3px solid #2fb457; }
+  .message.err  { background: #ffe3e3; color: #8a1f1f; border: 3px solid #e04b4b; }
+  .message.info { background: #fff8e1; color: #6b5300; border: 3px solid #ffc846; }
+
+  .hint-box {
+    max-width: 1100px;
+    margin: 20px auto 0;
+    background: #fff8e1;
+    border: 3px solid #ffc846;
+    border-radius: 14px;
+    padding: 18px 24px;
+    font-size: 1.3rem;
+    line-height: 1.6;
+    display: none;
+  }
+  .hint-box.show { display: block; }
+  .hint-box b { color: #6b5300; }
+  .hint-box ul { margin: 8px 0 0 22px; padding: 0; }
+
+  .final-card {
+    max-width: 1100px;
+    margin: 22px auto 0;
+    background: #ffffff;
+    border-radius: 16px;
+    padding: 20px 24px;
+    box-shadow: 0 6px 22px rgba(60,90,160,.14);
+    display: none;
+  }
+  .final-card.show { display: block; }
+  .final-card h3 {
+    margin: 0 0 12px;
+    font-size: 1.5rem;
+    color: #23407a;
+    text-align: center;
+  }
+  .final-card table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 1.2rem;
+  }
+  .final-card th, .final-card td {
+    border-bottom: 2px solid #eef1f7;
+    padding: 10px 12px;
+    text-align: left;
+  }
+  .final-card th { color: #5a6b8c; font-size: 1.15rem; }
+  .final-card td:last-child { text-align: right; font-weight: 800; color: #4a7dff; }
+
+  @media (max-width: 780px) {
+    html { font-size: 18px; }
+    h1 { font-size: 2rem; }
+    .board { grid-template-columns: repeat(3, 1fr); gap: 12px; }
+    .memo-card .back { font-size: 2.2rem; }
+    .memo-card .front { font-size: 1.15rem; }
+    button { font-size: 1.2rem; padding: 14px 24px; }
+  }
+  @media (max-width: 520px) {
+    .board { grid-template-columns: repeat(2, 1fr); }
+  }
+</style>
+</head>
+<body>
+
+<h1>Мемори: пары значений</h1>
+<p class="subtitle">Синонимы • Антонимы • Омонимы — 3 класс</p>
+
+<div class="rule">
+  <b>Как играть:</b>
+  <ol>
+    <li>Открой две любые карточки.</li>
+    <li>Если они образуют смысловую пару — назови отношение: синонимы, антонимы или омонимы.</li>
+    <li>Если пара верная — карточки остаются открытыми. Если нет — они закроются.</li>
+    <li>Собери все 6 пар. Игра закончится автоматически.</li>
+  </ol>
+</div>
+
+<div class="stats">
+  <div class="stat">Найдено пар: <span id="statPairs">0</span> / 6</div>
+  <div class="stat">Попыток: <span id="statTries">0</span></div>
+  <div class="stat">Ошибок: <span id="statErrors">0</span></div>
+</div>
+
+<div class="board" id="board"></div>
+
+<div class="controls">
+  <button class="btn-help" id="btnHelp">Подсказка</button>
+  <button class="btn-reset" id="btnReset">Начать заново</button>
+</div>
+
+<div class="hint-box" id="hintBox">
+  <b>Подсказка.</b>
+  <ul>
+    <li><b>Синонимы</b> — слова близкие по значению: <i>смелый — храбрый</i>, <i>большой — огромный</i>.</li>
+    <li><b>Антонимы</b> — слова противоположные по значению: <i>день — ночь</i>, <i>горячий — холодный</i>.</li>
+    <li><b>Омонимы</b> — одно слово с разными значениями: <i>ключ (от двери) — ключ (родник)</i>, <i>лук (растение) — лук (оружие)</i>.</li>
+  </ul>
+</div>
+
+<div class="message" id="message"></div>
+
+<div class="final-card" id="finalCard">
+  <h3>Собранные пары</h3>
+  <table>
+    <thead>
+      <tr><th>Пара</th><th>Отношение</th></tr>
+    </thead>
+    <tbody id="finalBody"></tbody>
+  </table>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  // 6 пар = 12 карточек
+  const PAIRS = [
+    { pairId: 1, type: "syn", a: "смелый",  b: "храбрый" },
+    { pairId: 2, type: "syn", a: "большой", b: "огромный" },
+    { pairId: 3, type: "ant", a: "день",    b: "ночь" },
+    { pairId: 4, type: "ant", a: "горячий", b: "холодный" },
+    { pairId: 5, type: "hom", a: "ключ (от двери)", b: "ключ (родник)" },
+    { pairId: 6, type: "hom", a: "лук (растение)", b: "лук (оружие)" }
+  ];
+
+  const TYPE_LABEL = { syn: "синонимы", ant: "антонимы", hom: "омонимы" };
+
+  const board      = document.getElementById("board");
+  const statPairs  = document.getElementById("statPairs");
+  const statTries  = document.getElementById("statTries");
+  const statErrors = document.getElementById("statErrors");
+  const btnReset   = document.getElementById("btnReset");
+  const btnHelp    = document.getElementById("btnHelp");
+  const hintBox    = document.getElementById("hintBox");
+  const message    = document.getElementById("message");
+  const finalCard  = document.getElementById("finalCard");
+  const finalBody  = document.getElementById("finalBody");
+
+  let firstCard = null;
+  let lockBoard = false;
+  let foundPairs = 0;
+  let tries = 0;
+  let errors = 0;
+  let startTime = null;
+  let timerId = null;
+
+  function shuffle(arr) {
+    const a = arr.slice();
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  }
+
+  function buildDeck() {
+    const deck = [];
+    PAIRS.forEach((p) => {
+      deck.push({ pairId: p.pairId, type: p.type, text: p.a });
+      deck.push({ pairId: p.pairId, type: p.type, text: p.b });
+    });
+    return shuffle(deck);
+  }
+
+  function makeCard(data) {
+    const el = document.createElement("div");
+    el.className = "memo-card";
+    el.dataset.pairId = data.pairId;
+    el.dataset.type = data.type;
+    el.setAttribute("role", "button");
+    el.setAttribute("tabindex", "0");
+
+    el.innerHTML =
+      '<div class="inner">' +
+        '<div class="face back">?</div>' +
+        '<div class="face front" data-type="' + data.type + '">' + data.text + '</div>' +
+      '</div>';
+
+    el.addEventListener("click", () => flipCard(el));
+    el.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        flipCard(el);
+      }
+    });
+
+    return el;
+  }
+
+  function flipCard(el) {
+    if (lockBoard) return;
+    if (el.classList.contains("flipped") || el.classList.contains("matched")) return;
+
+    el.classList.add("flipped");
+
+    if (!firstCard) {
+      firstCard = el;
+      return;
+    }
+
+    // Вторая карточка
+    tries++;
+    statTries.textContent = tries;
+
+    const secondCard = el;
+
+    if (firstCard.dataset.pairId === secondCard.dataset.pairId &&
+        firstCard !== secondCard) {
+      // Правильная пара
+      firstCard.classList.add("matched", "disabled");
+      secondCard.classList.add("matched", "disabled");
+      foundPairs++;
+      statPairs.textContent = foundPairs;
+
+      const type = firstCard.dataset.type;
+      const a = firstCard.querySelector(".front").textContent;
+      const b = secondCard.querySelector(".front").textContent;
+      showMessage("✅ Верно! <b>" + a + " — " + b + "</b> — это <b>" + TYPE_LABEL[type] + "</b>.", "ok", 2500);
+
+      appendToFinal(a, b, TYPE_LABEL[type]);
+
+      firstCard = null;
+      if (foundPairs === PAIRS.length) {
+        finishGame();
+      }
+      return;
+    }
+
+    // Не пара
+    errors++;
+    statErrors.textContent = errors;
+    lockBoard = true;
+
+    const a = firstCard.querySelector(".front").textContent;
+    const b = secondCard.querySelector(".front").textContent;
+
+    firstCard.classList.add("wrong");
+    secondCard.classList.add("wrong");
+
+    showMessage(buildPairHint(firstCard, secondCard, a, b), "err", 3500);
+
+    setTimeout(() => {
+      firstCard.classList.remove("flipped", "wrong");
+      secondCard.classList.remove("flipped", "wrong");
+      firstCard = null;
+      lockBoard = false;
+    }, 1300);
+  }
+
+  function buildPairHint(c1, c2, a, b) {
+    const t1 = c1.dataset.type;
+    const t2 = c2.dataset.type;
+    if (t1 === t2) {
+      return "❌ Это не пара. Оба слова из группы <b>" + TYPE_LABEL[t1] +
+             "</b>, но это разные примеры. Ищи слово с тем же <i>смысловым отношением</i>.";
+    }
+    return "❌ Это не пара: <b>" + a + "</b> — из группы «" + TYPE_LABEL[t1] +
+           "», а <b>" + b + "</b> — из группы «" + TYPE_LABEL[t2] +
+           "». Открой две карточки из одной группы.";
+  }
+
+  function showMessage(html, kind, ms) {
+    message.innerHTML = html;
+    message.className = "message show " + kind;
+    clearTimeout(showMessage._t);
+    if (ms) showMessage._t = setTimeout(() => {
+      message.className = "message";
+    }, ms);
+  }
+
+  function appendToFinal(a, b, label) {
+    const tr = document.createElement("tr");
+    tr.innerHTML = "<td>" + a + " — " + b + "</td><td>" + label + "</td>";
+    finalBody.appendChild(tr);
+  }
+
+  function finishGame() {
+    const seconds = Math.round((Date.now() - startTime) / 1000);
+    const minutes = Math.floor(seconds / 60);
+    const rest = seconds % 60;
+    const timeStr = (minutes > 0 ? minutes + " мин " : "") + rest + " с";
+
+    showMessage(
+      "🎉 <b>Готово!</b> Ты собрал все 6 пар за <b>" + timeStr + "</b>. " +
+      "Попыток: <b>" + tries + "</b>, ошибок: <b>" + errors + "</b>." +
+      (errors === 0 ? " Без единой ошибки — отличная работа!" : " Загляни в таблицу ниже: там все собранные пары."),
+      "ok"
+    );
+    finalCard.classList.add("show");
+
+    if (timerId) { clearInterval(timerId); timerId = null; }
+  }
+
+  function resetGame() {
+    board.innerHTML = "";
+    finalBody.innerHTML = "";
+    finalCard.classList.remove("show");
+    message.className = "message";
+    hintBox.classList.remove("show");
+    firstCard = null;
+    lockBoard = false;
+    foundPairs = 0;
+    tries = 0;
+    errors = 0;
+    statPairs.textContent = "0";
+    statTries.textContent = "0";
+    statErrors.textContent = "0";
+    startTime = Date.now();
+    if (timerId) { clearInterval(timerId); timerId = null; }
+    buildBoard();
+  }
+
+  function buildBoard() {
+    const deck = buildDeck();
+    deck.forEach((data) => {
+      board.appendChild(makeCard(data));
+    });
+  }
+
+  btnReset.addEventListener("click", resetGame);
+  btnHelp.addEventListener("click", () => hintBox.classList.toggle("show"));
+
+  resetGame();
+})();
+</script>
+</body>
+</html>
