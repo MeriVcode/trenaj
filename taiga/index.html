@@ -1,0 +1,822 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Животные и растения тайги</title>
+    <style>
+        :root {
+            --primary-color: #2d6a4f;
+            --secondary-color: #d8f3dc;
+            --accent-color: #40916c;
+            --text-color: #1b4332;
+            --card-bg: #ffffff;
+            --btn-hover: #1b4332;
+            --modal-bg: rgba(27, 67, 50, 0.75);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(180deg, #d8f3dc 0%, #f0f7f4 100%);
+            color: var(--text-color);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        header {
+            text-align: center;
+            padding: 50px 20px;
+            background: linear-gradient(135deg, #1b4332 0%, #2d6a4f 50%, #40916c 100%);
+            color: white;
+            width: 100%;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+            margin-bottom: 30px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        header::before {
+            content: '🌲 🌲';
+            position: absolute;
+            top: 15px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 1.5rem;
+            opacity: 0.3;
+            letter-spacing: 20px;
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 2.8rem;
+            letter-spacing: 1px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.95;
+            margin-top: 15px;
+            font-style: italic;
+        }
+
+        .map-section {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto 50px auto;
+            padding: 0 20px;
+        }
+
+        .map-title {
+            text-align: center;
+            font-size: 2rem;
+            color: var(--text-color);
+            margin-bottom: 30px;
+            font-weight: 700;
+        }
+
+        .map-container {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 40px rgba(27, 67, 50, 0.15);
+            position: relative;
+            text-align: center;
+        }
+
+        .map-image {
+            width: 100%;
+            max-width: 700px;
+            height: auto;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            display: block;
+            margin: 0 auto;
+        }
+
+        .map-image:hover {
+            transform: scale(1.02);
+            box-shadow: 0 15px 40px rgba(45, 106, 79, 0.3);
+        }
+
+        .map-hint {
+            text-align: center;
+            margin-top: 15px;
+            font-size: 0.95rem;
+            color: #666;
+            font-style: italic;
+        }
+
+        .start-btn-container {
+            text-align: center;
+            margin-top: 30px;
+        }
+
+        .start-btn {
+            background: linear-gradient(135deg, #2d6a4f 0%, #40916c 100%);
+            color: white;
+            border: none;
+            padding: 18px 50px;
+            border-radius: 35px;
+            cursor: pointer;
+            font-size: 1.3rem;
+            font-weight: 700;
+            transition: all 0.3s ease;
+            box-shadow: 0 6px 25px rgba(45, 106, 79, 0.4);
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .start-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 35px rgba(45, 106, 79, 0.5);
+        }
+
+        .start-btn:active {
+            transform: scale(0.97);
+        }
+
+        .start-icon {
+            font-size: 1.5rem;
+            animation: bounce 1s ease-in-out infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-5px);
+            }
+        }
+
+        .filter-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 40px;
+            flex-wrap: wrap;
+            padding: 0 20px;
+        }
+
+        .filter-btn {
+            background: white;
+            color: var(--primary-color);
+            border: 3px solid var(--primary-color);
+            padding: 14px 35px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(45, 106, 79, 0.2);
+        }
+
+        .filter-btn:hover {
+            background: var(--secondary-color);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(45, 106, 79, 0.3);
+        }
+
+        .filter-btn.active {
+            background: var(--primary-color);
+            color: white;
+            box-shadow: 0 6px 20px rgba(45, 106, 79, 0.4);
+        }
+
+        .container {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 35px;
+            max-width: 1400px;
+            padding: 0 20px 60px 20px;
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(27, 67, 50, 0.15);
+            width: 300px;
+            overflow: hidden;
+            transition: transform 0.4s ease, box-shadow 0.4s ease, opacity 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            border: 2px solid transparent;
+        }
+
+        .card.hidden {
+            display: none;
+        }
+
+        .card:hover {
+            transform: translateY(-12px);
+            box-shadow: 0 20px 40px rgba(27, 67, 50, 0.25);
+            border-color: var(--accent-color);
+        }
+
+        .card-image-container {
+            height: 220px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .card-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.6s ease;
+        }
+
+        .card:hover .card-image {
+            transform: scale(1.15);
+        }
+
+        .card-badge {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--primary-color);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        }
+
+        .card-content {
+            padding: 25px;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .animal-name {
+            font-size: 1.5rem;
+            margin: 0 0 12px 0;
+            color: var(--text-color);
+            font-weight: 700;
+        }
+
+        .animal-desc {
+            font-size: 1rem;
+            line-height: 1.6;
+            color: #555;
+            margin-bottom: 25px;
+            flex-grow: 1;
+        }
+
+        .open-btn {
+            background: linear-gradient(135deg, var(--accent-color) 0%, var(--primary-color) 100%);
+            color: white;
+            border: none;
+            padding: 14px 24px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            outline: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            box-shadow: 0 4px 15px rgba(45, 106, 79, 0.3);
+        }
+
+        .open-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(45, 106, 79, 0.4);
+        }
+
+        .open-btn:active {
+            transform: scale(0.97);
+        }
+
+        .icon {
+            font-size: 1.3rem;
+            transition: transform 0.3s ease;
+        }
+
+        .open-btn:hover .icon {
+            transform: translateX(4px);
+        }
+
+        footer {
+            margin-top: auto;
+            padding: 35px 20px;
+            text-align: center;
+            background-color: #1b4332;
+            color: white;
+            width: 100%;
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .footer-brand {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            color: #95d5b2;
+        }
+
+        .footer-tagline {
+            font-size: 1rem;
+            opacity: 0.85;
+            margin-bottom: 10px;
+        }
+
+        .footer-year {
+            opacity: 0.6;
+            margin-top: 10px;
+            font-size: 0.9rem;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: var(--modal-bg);
+            animation: fadeIn 0.3s ease;
+            backdrop-filter: blur(4px);
+        }
+
+        .modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal-content {
+            background-color: white;
+            border-radius: 25px;
+            padding: 40px;
+            max-width: 550px;
+            width: 100%;
+            position: relative;
+            animation: slideUp 0.4s ease;
+            box-shadow: 0 25px 80px rgba(0,0,0,0.4);
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(60px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 2rem;
+            font-weight: bold;
+            color: #999;
+            cursor: pointer;
+            transition: color 0.2s ease, transform 0.2s ease;
+            background: none;
+            border: none;
+            line-height: 1;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .close-btn:hover {
+            color: var(--primary-color);
+            background: var(--secondary-color);
+            transform: rotate(90deg);
+        }
+
+        .modal-icon {
+            font-size: 4rem;
+            margin-bottom: 15px;
+            display: block;
+            text-align: center;
+        }
+
+        .modal-title {
+            font-size: 2rem;
+            color: var(--text-color);
+            margin: 0 0 20px 0;
+            text-align: center;
+            font-weight: 700;
+        }
+
+        .modal-fact {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            color: #444;
+            margin: 0 0 20px 0;
+        }
+
+        .fact-list {
+            background: var(--secondary-color);
+            padding: 20px;
+            border-radius: 15px;
+            margin-top: 20px;
+        }
+
+        .fact-list h4 {
+            margin: 0 0 12px 0;
+            color: var(--primary-color);
+            font-size: 1.1rem;
+        }
+
+        .fact-list ul {
+            margin: 0;
+            padding-left: 20px;
+        }
+
+        .fact-list li {
+            margin-bottom: 10px;
+            color: #333;
+            line-height: 1.6;
+            font-size: 1rem;
+        }
+
+        @media (max-width: 600px) {
+            h1 {
+                font-size: 2rem;
+            }
+            .card {
+                width: 100%;
+                max-width: 340px;
+            }
+            .modal-content {
+                padding: 25px;
+            }
+            .filter-btn {
+                padding: 12px 25px;
+                font-size: 1rem;
+            }
+            .map-title {
+                font-size: 1.5rem;
+            }
+            .start-btn {
+                padding: 15px 35px;
+                font-size: 1.1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1> Животные и растения тайги </h1>
+        <div class="subtitle">Удивительный мир сибирских лесов</div>
+    </header>
+
+    <section class="map-section">
+        <h2 class="map-title">🗺️ Природные зоны России</h2>
+        <div class="map-container">
+            <img src="https://image.qwenlm.ai/public_source/66c6c10f-ebf8-43bd-921a-590c0373fa2e/1d21bd12d-4dbe-4447-88de-7bb19404ecd4.png" alt="Карта природных зон России" class="map-image" onclick="scrollToCards()">
+            <div class="map-hint">👆 Нажми на карту, чтобы начать путешествие в тайгу!</div>
+            
+            <div class="start-btn-container">
+                <button class="start-btn" onclick="scrollToCards()">
+                    <span class="start-icon"></span>
+                    Начать путешествие в тайгу!
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <div class="filter-buttons">
+        <button class="filter-btn active" onclick="filterCards('all')">Все</button>
+        <button class="filter-btn" onclick="filterCards('animal')">🐾 Животные</button>
+        <button class="filter-btn" onclick="filterCards('plant')">🌿 Растения</button>
+    </div>
+
+    <div class="container" id="cardsContainer">
+        <!-- Животные -->
+        <div class="card" data-category="animal">
+            <div class="card-image-container">
+                <img src="https://image.qwenlm.ai/public_source/66c6c10f-ebf8-43bd-921a-590c0373fa2e/19a2c5a59-3fb9-49e4-b212-a3e0ba93a6fa.png" alt="Бурый медведь" class="card-image">
+                <div class="card-badge">🐾 Животное</div>
+            </div>
+            <div class="card-content">
+                <h2 class="animal-name">Бурый медведь</h2>
+                <p class="animal-desc">Это самый большой зверь в тайге! Медведь — хозяин леса. Он сильный, умный и очень осторожный. Зимой медведь спит в своей берлоге.</p>
+                <button class="open-btn" onclick="openFact('bear')">
+                    Узнать больше <span class="icon">→</span>
+                </button>
+            </div>
+        </div>
+
+        <div class="card" data-category="animal">
+            <div class="card-image-container">
+                <img src="https://image.qwenlm.ai/public_source/66c6c10f-ebf8-43bd-921a-590c0373fa2e/157b55b65-5f96-4254-91ac-581bf12c060b.png" alt="Лось" class="card-image">
+                <div class="card-badge"> Животное</div>
+            </div>
+            <div class="card-content">
+                <h2 class="animal-name">Лось</h2>
+                <p class="animal-desc">Лось — самый большой олень в мире! У него огромные рога, которые он сбрасывает зимой и отращивает весной. Лось отлично плавает и ныряет.</p>
+                <button class="open-btn" onclick="openFact('moose')">
+                    Узнать больше <span class="icon">→</span>
+                </button>
+            </div>
+        </div>
+
+        <div class="card" data-category="animal">
+            <div class="card-image-container">
+                <img src="https://image.qwenlm.ai/public_source/66c6c10f-ebf8-43bd-921a-590c0373fa2e/12f7e25b7-8e63-4883-820a-b381214ea4ca.png" alt="Рысь" class="card-image">
+                <div class="card-badge">🐾 Животное</div>
+            </div>
+            <div class="card-content">
+                <h2 class="animal-name">Рысь</h2>
+                <p class="animal-desc">Рысь — это дикая кошка с красивыми кисточками на ушах. У неё большие лапы, как снегоступы, поэтому она легко ходит по глубокому снегу.</p>
+                <button class="open-btn" onclick="openFact('lynx')">
+                    Узнать больше <span class="icon">→</span>
+                </button>
+            </div>
+        </div>
+
+        <div class="card" data-category="animal">
+            <div class="card-image-container">
+                <img src="https://image.qwenlm.ai/public_source/66c6c10f-ebf8-43bd-921a-590c0373fa2e/153749998-ee9b-44ce-a0d5-e50f247e0c41.png" alt="Соболь" class="card-image">
+                <div class="card-badge">🐾 Животное</div>
+            </div>
+            <div class="card-content">
+                <h2 class="animal-name">Соболь</h2>
+                <p class="animal-desc">Соболь — маленький и очень ловкий зверёк. Он живёт на деревьях и охотится ночью. Его мягкая шубка очень ценная.</p>
+                <button class="open-btn" onclick="openFact('sable')">
+                    Узнать больше <span class="icon">→</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Растения -->
+        <div class="card" data-category="plant">
+            <div class="card-image-container">
+                <img src="https://image.qwenlm.ai/public_source/66c6c10f-ebf8-43bd-921a-590c0373fa2e/1ee1d383d-0260-4b72-be3e-b5568d001f96.png" alt="Ель сибирская" class="card-image">
+                <div class="card-badge">🌲 Растение</div>
+            </div>
+            <div class="card-content">
+                <h2 class="animal-name">Ель сибирская</h2>
+                <p class="animal-desc">Ель — главное дерево тайги. Она зелёная круглый год! Из ели делают бумагу и мебель, а из смолы лечат раны.</p>
+                <button class="open-btn" onclick="openFact('spruce')">
+                    Узнать больше <span class="icon">→</span>
+                </button>
+            </div>
+        </div>
+
+        <div class="card" data-category="plant">
+            <div class="card-image-container">
+                <img src="https://image.qwenlm.ai/public_source/66c6c10f-ebf8-43bd-921a-590c0373fa2e/10bdd9628-13a0-43fc-9829-7b89e44cb809.png" alt="Кедр сибирский" class="card-image">
+                <div class="card-badge">🌲 Растение</div>
+            </div>
+            <div class="card-content">
+                <h2 class="animal-name">Кедр сибирский</h2>
+                <p class="animal-desc">Кедр живёт очень долго — до 800 лет! На нём растут вкусные орешки, которыми любят лакомиться белки и другие звери.</p>
+                <button class="open-btn" onclick="openFact('cedar')">
+                    Узнать больше <span class="icon">→</span>
+                </button>
+            </div>
+        </div>
+
+        <div class="card" data-category="plant">
+            <div class="card-image-container">
+                <img src="https://image.qwenlm.ai/public_source/66c6c10f-ebf8-43bd-921a-590c0373fa2e/12d80ec4c-e220-4016-abdd-4adbb0563eda.png" alt="Папоротник" class="card-image">
+                <div class="card-badge">🌿 Растение</div>
+            </div>
+            <div class="card-content">
+                <h2 class="animal-name">Папоротник</h2>
+                <p class="animal-desc">Папоротник — очень древнее растение. Он рос ещё во времена динозавров! У папоротника красивые резные листья, закрученные спиралькой.</p>
+                <button class="open-btn" onclick="openFact('fern')">
+                    Узнать больше <span class="icon">→</span>
+                </button>
+            </div>
+        </div>
+
+        <div class="card" data-category="plant">
+            <div class="card-image-container">
+                <img src="https://image.qwenlm.ai/public_source/66c6c10f-ebf8-43bd-921a-590c0373fa2e/1a4ae49d4-94d7-48e6-adf3-64a950cbcf7b.png" alt="Мох" class="card-image">
+                <div class="card-badge">🌿 Растение</div>
+            </div>
+            <div class="card-content">
+                <h2 class="animal-name">Мох</h2>
+                <p class="animal-desc">Мох — это мягкий зелёный ковёр в лесу. Он растёт на земле, камнях и деревьях. Мох умеет впитывать много воды, как губка!</p>
+                <button class="open-btn" onclick="openFact('moss')">
+                    Узнать больше <span class="icon">→</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="factModal" class="modal">
+        <div class="modal-content">
+            <button class="close-btn" onclick="closeFact()">&times;</button>
+            <span id="factIcon" class="modal-icon"></span>
+            <h2 id="modalTitle" class="modal-title"></h2>
+            <p id="modalFact" class="modal-fact"></p>
+            <div class="fact-list">
+                <h4>🔍 Интересные факты:</h4>
+                <ul id="factList"></ul>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-brand">Мастерская учителя начальных классов</div>
+            <div class="footer-tagline">Foolish • Интенсивы</div>
+            <div class="footer-year">&copy; 2026</div>
+        </div>
+    </footer>
+
+    <script>
+        const facts = {
+            bear: {
+                icon: '🐻',
+                title: 'Бурый медведь',
+                fact: 'Медведь — самый большой зверь в нашем лесу. Он может весить как 10 взрослых людей! Медведи всеядные — едят ягоды, рыбу, мёд и даже мелких зверьков.',
+                list: [
+                    'Зимой медведь спит в берлоге 5-6 месяцев',
+                    'Медведь умеет плавать и бегать очень быстро — до 50 км/ч',
+                    'Медвежата рождаются зимой, совсем маленькие — всего 500 граммов',
+                    'Медведь чует еду за 20 километров — это как от школы до другого города!',
+                    'Медведи любят мёд, но ещё больше — малину и ягоды'
+                ]
+            },
+            moose: {
+                icon: '',
+                title: 'Лось',
+                fact: 'Лось — самый большой олень на планете. Его роги могут быть шириной как размах рук взрослого человека! Лоси отлично плавают и даже ныряют за водными растениями.',
+                list: [
+                    'Лоси сбрасывают рога зимой, а весной у них вырастают новые',
+                    'Лось может бежать так же быстро, как машина в городе — 55 км/ч',
+                    'За день лось съедает 35 кг еды — это как 70 буханок хлеба!',
+                    'Лосёнок встаёт на ноги уже через несколько часов после рождения',
+                    'Лоси живут до 25 лет'
+                ]
+            },
+            lynx: {
+                icon: '🐱',
+                title: 'Рысь',
+                fact: 'Рысь — это дикая кошка с красивыми кисточками на ушах. У неё большие лапы, как снегоступы, поэтому она не проваливается в снегу. Рысь отлично лазает по деревьям.',
+                list: [
+                    'Рысь умеет прыгать на 7 метров — это как длина школьного автобуса!',
+                    'Рысь бегает очень быстро — до 60 км/ч',
+                    'Рысь охотится на зайцев и маленьких оленей',
+                    'Рысята рождаются слепыми и открывают глаза через 2 недели',
+                    'Рысь ведёт скрытный образ жизни — её трудно увидеть в лесу'
+                ]
+            },
+            sable: {
+                icon: '',
+                title: 'Соболь',
+                fact: 'Соболь — маленький, но очень ловкий зверёк. Он весит всего 1-2 кг, но очень сильный. Соболь живёт на деревьях и охотится ночью. Его мягкая шубка очень ценная.',
+                list: [
+                    'Соболь умеет лазать по деревьям и прыгать с ветки на ветку',
+                    'Он выходит на охоту ночью, а днём спит',
+                    'Соболь ест мышек, птичек и ягоды',
+                    'Раньше шубка соболя стоила как золото',
+                    'Соболь очень осторожный и боится людей'
+                ]
+            },
+            spruce: {
+                icon: '🌲',
+                title: 'Ель сибирская',
+                fact: 'Ель — главное дерево тайги. Она зелёная круглый год, даже зимой! Ель растёт очень медленно — за год всего на 10-15 см. Из ели делают бумагу и мебель.',
+                list: [
+                    'Ель может жить до 300 лет',
+                    'Хвоя на ели меняется каждые 5-7 лет',
+                    'У ели поверхностные корни, поэтому сильные ветры могут её повалить',
+                    'Из еловой смолы (живицы) лечат раны',
+                    'Еловые шишки созревают за один год'
+                ]
+            },
+            cedar: {
+                icon: '🌲',
+                title: 'Кедр сибирский',
+                fact: 'Кедр — настоящее дерево-долгожитель! Он может жить 800 лет. На кедре растут вкусные орешки, которыми любят лакомиться белки, бурундуки и другие звери.',
+                list: [
+                    'Первые орешки на кедре появляются только когда ему исполнится 20-30 лет',
+                    'Один кедр даёт до 12 кг орехов в год',
+                    'Кедровая смола лечит раны и помогает при простуде',
+                    'В кедровом лесу живёт много зверей и птиц',
+                    'Кедровые орехи очень полезные — в них много витаминов'
+                ]
+            },
+            fern: {
+                icon: '🌿',
+                title: 'Папоротник',
+                fact: 'Папоротник — одно из самых древних растений на Земле. Он рос ещё тогда, когда по планете ходили динозавры! Папоротник не даёт семян — он размножается спорами.',
+                list: [
+                    'Папоротники появились более 360 миллионов лет назад',
+                    'В мире есть более 10 000 видов папоротников',
+                    'Молодые листья папоротника закручены спиралькой, как улитка',
+                    'Папоротники были пищей динозавров!',
+                    'Некоторые папоротники могут жить более 100 лет'
+                ]
+            },
+            moss: {
+                icon: '🌱',
+                title: 'Мох',
+                fact: 'Мох — это мягкий зелёный ковёр в лесу. Он растёт на земле, камнях и деревьях. Мох умеет впитывать воду как губка — в 20 раз больше своего веса!',
+                list: [
+                    'Мхи появились более 400 миллионов лет назад',
+                    'Мох растёт очень медленно — всего 1-2 мм в год',
+                    'Мох помогает сохранять влагу в лесу',
+                    'У мха нет настоящих корней, стеблей и цветов',
+                    'Некоторые виды мха используют в медицине'
+                ]
+            }
+        };
+
+        function scrollToCards() {
+            const cardsContainer = document.getElementById('cardsContainer');
+            cardsContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        function filterCards(category) {
+            const cards = document.querySelectorAll('.card');
+            const buttons = document.querySelectorAll('.filter-btn');
+            
+            buttons.forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            cards.forEach(card => {
+                if (category === 'all' || card.dataset.category === category) {
+                    card.classList.remove('hidden');
+                } else {
+                    card.classList.add('hidden');
+                }
+            });
+        }
+
+        function openFact(animal) {
+            const modal = document.getElementById('factModal');
+            const factData = facts[animal];
+            
+            document.getElementById('factIcon').textContent = factData.icon;
+            document.getElementById('modalTitle').textContent = factData.title;
+            document.getElementById('modalFact').textContent = factData.fact;
+            
+            const listEl = document.getElementById('factList');
+            listEl.innerHTML = '';
+            factData.list.forEach(item => {
+                const li = document.createElement('li');
+                li.textContent = item;
+                listEl.appendChild(li);
+            });
+            
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeFact() {
+            const modal = document.getElementById('factModal');
+            modal.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        window.onclick = function(event) {
+            const modal = document.getElementById('factModal');
+            if (event.target === modal) {
+                closeFact();
+            }
+        }
+
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                closeFact();
+            }
+        });
+    </script>
+</body>
+</html>
