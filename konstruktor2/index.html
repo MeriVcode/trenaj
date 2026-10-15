@@ -1,0 +1,946 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Мастерская М. Братухиной — Конструктор рабочих листов</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    font-family: 'Segoe UI', Tahoma, sans-serif;
+    background: linear-gradient(135deg, #a8e6cf 0%, #dcedc1 50%, #ffd3b6 100%);
+    margin: 0; padding: 20px; min-height: 100vh; color: #2c3e50;
+  }
+  .app {
+    max-width: 900px; margin: 0 auto; background: #fff;
+    border-radius: 20px; padding: 30px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+  }
+
+  .site-header {
+    text-align: center;
+    padding: 8px 0 25px 0;
+    margin-bottom: 25px;
+    border-bottom: 2px solid #ecf0f1;
+    position: relative;
+  }
+  .site-header::after {
+    content: "";
+    position: absolute;
+    bottom: -2px; left: 50%;
+    transform: translateX(-50%);
+    width: 80px; height: 4px;
+    background: #27ae60;
+    border-radius: 4px;
+  }
+  .brand-name {
+    margin: 0;
+    font-size: 30px;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+    background: linear-gradient(90deg, #27ae60 0%, #e67e22 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    line-height: 1.2;
+  }
+  .brand-subtitle {
+    margin: 8px 0 0 0;
+    font-size: 15px;
+    color: #7f8c8d;
+    font-weight: 500;
+  }
+
+  h1 { color: #27ae60; text-align: center; margin-top: 0; font-size: 24px; }
+  h2 { color: #e67e22; font-size: 20px; margin-bottom: 15px; }
+  .tabs { display: flex; gap: 6px; margin-bottom: 20px; border-bottom: 2px solid #ecf0f1; }
+  .tab {
+    padding: 12px 22px; cursor: pointer; border: none; background: transparent;
+    font-size: 16px; font-weight: bold; color: #7f8c8d;
+    border-bottom: 3px solid transparent; margin-bottom: -2px; transition: all 0.2s;
+    font-family: inherit;
+  }
+  .tab:hover { color: #27ae60; }
+  .tab.active { color: #27ae60; border-bottom-color: #27ae60; }
+
+  section { margin-bottom: 25px; }
+  label.field { display: block; margin-bottom: 12px; font-weight: bold; color: #34495e; font-size: 14px; }
+  label.field input, label.field textarea {
+    display: block; width: 100%; margin-top: 5px;
+    padding: 10px 12px; font-size: 15px; font-family: inherit;
+    border: 2px solid #dfe6e9; border-radius: 10px; background: #fdfefe;
+    font-weight: normal; color: #2c3e50;
+  }
+  label.field input:focus, label.field textarea:focus {
+    outline: none; border-color: #27ae60; background: #fff;
+  }
+  label.field textarea { min-height: 60px; resize: vertical; }
+
+  .task-card {
+    background: #fdfaf6; border: 2px solid #f0e6d2;
+    border-radius: 14px; padding: 18px; margin-bottom: 14px;
+  }
+  .task-header {
+    display: flex; justify-content: space-between; align-items: center;
+    flex-wrap: wrap; gap: 10px; margin-bottom: 10px;
+  }
+  .task-num { font-weight: bold; color: #e67e22; margin-right: 8px; }
+  .task-type {
+    display: inline-block; background: #eafaf1; color: #27ae60;
+    padding: 3px 10px; border-radius: 20px; font-size: 13px; font-weight: bold;
+  }
+  .task-preview { color: #7f8c8d; font-style: italic; margin: 8px 0; font-size: 14px; }
+  .task-points { font-size: 13px; color: #d35400; font-weight: bold; }
+
+  .task-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+  button.btn-small {
+    padding: 6px 12px; border-radius: 8px; border: none; cursor: pointer;
+    font-size: 13px; font-weight: bold; font-family: inherit; transition: all 0.2s;
+  }
+  .edit-btn { background: #eafaf1; color: #27ae60; }
+  .edit-btn:hover { background: #d4edda; }
+  .del-btn { background: #fdedec; color: #e74c3c; }
+  .del-btn:hover { background: #f8d7da; }
+  .up-btn, .down-btn { background: #ecf0f1; color: #2c3e50; }
+  .up-btn:hover, .down-btn:hover { background: #d5dbdb; }
+
+  .task-editor {
+    background: #fff; padding: 15px; border-radius: 10px;
+    border: 2px solid #27ae60;
+  }
+  .task-editor h4 { margin-top: 0; color: #27ae60; }
+  .task-editor label.field { margin-bottom: 10px; }
+  .row-input {
+    display: flex; gap: 8px; align-items: center; margin-bottom: 8px;
+  }
+  .row-input input, .row-input select {
+    flex: 1; padding: 8px 10px; border: 2px solid #dfe6e9; border-radius: 8px;
+    font-size: 14px; font-family: inherit;
+  }
+  .row-input input:focus, .row-input select:focus { outline: none; border-color: #27ae60; }
+  .row-input .rm {
+    background: #fdedec; color: #e74c3c; border: none; width: 32px; height: 32px;
+    border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 16px;
+  }
+  .row-input .rm:hover { background: #f8d7da; }
+  .add-row {
+    background: #eafaf1; color: #27ae60; border: 2px dashed #27ae60;
+    padding: 8px 14px; border-radius: 8px; cursor: pointer;
+    font-weight: bold; font-size: 14px; font-family: inherit; margin-top: 5px;
+  }
+  .add-row:hover { background: #d4edda; }
+  .editor-buttons { display: flex; gap: 10px; margin-top: 15px; flex-wrap: wrap; }
+  .editor-buttons button {
+    padding: 10px 18px; border-radius: 8px; border: none; cursor: pointer;
+    font-weight: bold; font-family: inherit; font-size: 14px;
+  }
+  .btn-done { background: #27ae60; color: white; }
+  .btn-done:hover { background: #219150; }
+  .btn-cancel { background: #ecf0f1; color: #2c3e50; }
+  .btn-cancel:hover { background: #d5dbdb; }
+
+  .add-task-bar {
+    display: flex; gap: 8px; flex-wrap: wrap; align-items: center;
+    padding: 15px; background: #fdfaf6; border-radius: 12px;
+    border: 2px dashed #f0e6d2; margin-top: 15px;
+  }
+  .add-task-bar span { font-weight: bold; color: #7f8c8d; margin-right: 5px; font-size: 14px; }
+  .add-task-bar button {
+    padding: 8px 14px; background: #27ae60; color: white; border: none;
+    border-radius: 8px; cursor: pointer; font-weight: bold;
+    font-family: inherit; font-size: 13px; transition: all 0.2s;
+  }
+  .add-task-bar button:hover { background: #219150; }
+
+  .actions {
+    display: flex; gap: 10px; flex-wrap: wrap;
+    padding-top: 20px; border-top: 2px solid #ecf0f1;
+  }
+  .actions button {
+    padding: 12px 20px; border: none; border-radius: 10px; cursor: pointer;
+    font-weight: bold; font-family: inherit; font-size: 14px; transition: all 0.2s;
+  }
+  .btn-primary { background: #27ae60; color: white; }
+  .btn-primary:hover { background: #219150; }
+  .btn-danger { background: #fdedec; color: #e74c3c; }
+  .btn-danger:hover { background: #f8d7da; }
+
+  #previewFrame { width: 100%; min-height: 700px; border: 2px solid #ecf0f1; border-radius: 12px; background: #fff; }
+
+  .empty-hint {
+    text-align: center; padding: 30px; color: #95a5a6;
+    font-style: italic; background: #fdfaf6; border-radius: 12px;
+  }
+
+  @media (max-width: 500px) {
+    .brand-name { font-size: 22px; }
+    .brand-subtitle { font-size: 13px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+
+  <header class="site-header">
+    <h1 class="brand-name">Мастерская М. Братухиной</h1>
+    <p class="brand-subtitle">Конструктор интерактивных рабочих листов</p>
+  </header>
+
+  <div class="tabs">
+    <button class="tab active" data-tab="constructor">Конструктор</button>
+    <button class="tab" data-tab="preview">Предпросмотр</button>
+  </div>
+
+  <div id="constructorTab">
+    <section>
+      <h2>Основная информация</h2>
+      <label class="field">Название рабочего листа
+        <input type="text" id="inpTitle" placeholder="Например: Времена года">
+      </label>
+      <label class="field">Предмет
+        <input type="text" id="inpSubject" placeholder="Окружающий мир">
+      </label>
+      <label class="field">Класс / возраст
+        <input type="text" id="inpGrade" placeholder="3 класс">
+      </label>
+      <label class="field">Общая инструкция для ученика
+        <textarea id="inpInstructions" placeholder="Выполни все задания и нажми «Проверить»."></textarea>
+      </label>
+    </section>
+
+    <section>
+      <h2>Задания</h2>
+      <div id="taskList"></div>
+      <div class="add-task-bar">
+        <span>Добавить задание:</span>
+        <button data-type="single_choice">Тест</button>
+        <button data-type="fill_blanks">Пропуски</button>
+        <button data-type="matching">Сопоставление</button>
+        <button data-type="sorting">Сортировка</button>
+        <button data-type="open_question">Открытый вопрос</button>
+      </div>
+    </section>
+
+    <section class="actions">
+      <button id="btnExportHtml" class="btn-primary">🌐 Скачать HTML-лист</button>
+      <button id="btnClear" class="btn-danger">🗑️ Очистить всё</button>
+    </section>
+  </div>
+
+  <div id="previewTab" style="display:none">
+    <iframe id="previewFrame"></iframe>
+  </div>
+</div>
+
+<script>
+/* =========================================================
+   СОСТОЯНИЕ И ХРАНЕНИЕ
+   ========================================================= */
+const STORAGE_KEY = 'worksheet_constructor_v1';
+
+const DEFAULT_STATE = {
+  title: 'Мой рабочий лист',
+  subject: '',
+  grade: '',
+  instructions: 'Выполни все задания и нажми «Проверить».',
+  tasks: []
+};
+
+let state = load() || JSON.parse(JSON.stringify(DEFAULT_STATE));
+let editingId = null;
+let nextId = state.tasks.length ? Math.max(...state.tasks.map(t => t.id)) + 1 : 1;
+
+function load() {
+  try {
+    const s = localStorage.getItem(STORAGE_KEY);
+    return s ? JSON.parse(s) : null;
+  } catch (e) { return null; }
+}
+function save() {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch (e) {}
+}
+
+/* =========================================================
+   ОБЩИЕ ПОЛЯ
+   ========================================================= */
+const inpTitle = document.getElementById('inpTitle');
+const inpSubject = document.getElementById('inpSubject');
+const inpGrade = document.getElementById('inpGrade');
+const inpInstructions = document.getElementById('inpInstructions');
+
+function syncBasicInfoToInputs() {
+  inpTitle.value = state.title || '';
+  inpSubject.value = state.subject || '';
+  inpGrade.value = state.grade || '';
+  inpInstructions.value = state.instructions || '';
+}
+
+inpTitle.addEventListener('input', () => { state.title = inpTitle.value; save(); });
+inpSubject.addEventListener('input', () => { state.subject = inpSubject.value; save(); });
+inpGrade.addEventListener('input', () => { state.grade = inpGrade.value; save(); });
+inpInstructions.addEventListener('input', () => { state.instructions = inpInstructions.value; save(); });
+
+/* =========================================================
+   СОЗДАНИЕ ЗАДАНИЙ
+   ========================================================= */
+function createTask(type) {
+  const base = { id: nextId++, type, instruction: 'Выполни задание.', points: 1 };
+  if (type === 'single_choice') {
+    return Object.assign(base, {
+      instruction: 'Выбери один правильный ответ.',
+      question: 'Текст вопроса',
+      options: ['Вариант 1', 'Вариант 2', 'Вариант 3'],
+      correct: 0, points: 1
+    });
+  }
+  if (type === 'fill_blanks') {
+    return Object.assign(base, {
+      instruction: 'Вставь пропущенное слово.',
+      sentence: 'Зимой часто идёт ___.',
+      correct_words: ['снег'], points: 1
+    });
+  }
+  if (type === 'matching') {
+    return Object.assign(base, {
+      instruction: 'Соотнеси понятия.',
+      left: ['Понятие 1', 'Понятие 2'],
+      right: ['Определение A', 'Определение B'],
+      correct_pairs: [[0, 0], [1, 1]], points: 2
+    });
+  }
+  if (type === 'sorting') {
+    return Object.assign(base, {
+      instruction: 'Распредели слова по категориям.',
+      categories: ['Категория A', 'Категория B'],
+      items: ['Слово 1', 'Слово 2'],
+      correct: [0, 1], points: 2
+    });
+  }
+  if (type === 'open_question') {
+    return Object.assign(base, {
+      instruction: 'Ответь на вопрос.',
+      question: 'Напиши свой ответ',
+      keywords: ['ключевое'], points: 1
+    });
+  }
+}
+
+const TYPE_NAMES = {
+  single_choice: 'Тест',
+  fill_blanks: 'Пропуски',
+  matching: 'Сопоставление',
+  sorting: 'Сортировка',
+  open_question: 'Открытый вопрос'
+};
+
+/* =========================================================
+   РЕНДЕР СПИСКА ЗАДАНИЙ
+   ========================================================= */
+const taskList = document.getElementById('taskList');
+
+function render() {
+  syncBasicInfoToInputs();
+  renderTaskList();
+  save();
+}
+
+function renderTaskList() {
+  taskList.innerHTML = '';
+  if (state.tasks.length === 0) {
+    taskList.innerHTML = '<div class="empty-hint">Пока нет заданий. Добавьте первое с помощью кнопок ниже.</div>';
+    return;
+  }
+  state.tasks.forEach((task, idx) => {
+    taskList.appendChild(renderTaskCard(task, idx));
+  });
+}
+
+function renderTaskCard(task, idx) {
+  const card = document.createElement('div');
+  card.className = 'task-card';
+
+  if (editingId === task.id) {
+    card.innerHTML = buildEditorHTML(task, idx);
+    attachEditorHandlers(card, task);
+  } else {
+    card.innerHTML =
+      '<div class="task-header">' +
+        '<div><span class="task-num">Задание ' + (idx + 1) + '</span>' +
+        '<span class="task-type">' + TYPE_NAMES[task.type] + '</span></div>' +
+        '<div class="task-actions">' +
+          '<button class="btn-small up-btn" title="Выше">▲</button>' +
+          '<button class="btn-small down-btn" title="Ниже">▼</button>' +
+          '<button class="btn-small edit-btn">Редактировать</button>' +
+          '<button class="btn-small del-btn">Удалить</button>' +
+        '</div>' +
+      '</div>' +
+      '<div class="task-preview">' + escapeHtml(task.instruction || '(без инструкции)') + '</div>' +
+      '<div class="task-points">Макс. балл: ' + task.points + '</div>';
+
+    card.querySelector('.edit-btn').onclick = () => { editingId = task.id; render(); };
+    card.querySelector('.del-btn').onclick = () => {
+      if (confirm('Удалить задание?')) {
+        state.tasks = state.tasks.filter(t => t.id !== task.id);
+        render();
+      }
+    };
+    card.querySelector('.up-btn').onclick = () => {
+      if (idx > 0) {
+        [state.tasks[idx-1], state.tasks[idx]] = [state.tasks[idx], state.tasks[idx-1]];
+        render();
+      }
+    };
+    card.querySelector('.down-btn').onclick = () => {
+      if (idx < state.tasks.length - 1) {
+        [state.tasks[idx+1], state.tasks[idx]] = [state.tasks[idx], state.tasks[idx+1]];
+        render();
+      }
+    };
+  }
+  return card;
+}
+
+/* =========================================================
+   РЕДАКТОР ЗАДАНИЙ
+   ========================================================= */
+function buildEditorHTML(task, idx) {
+  let h = '<div class="task-editor">';
+  h += '<h4>Редактирование задания ' + (idx + 1) + ' — ' + TYPE_NAMES[task.type] + '</h4>';
+
+  h += '<label class="field">Инструкция<textarea data-bind="instruction">' + escapeHtml(task.instruction || '') + '</textarea></label>';
+
+  if (task.type === 'single_choice') {
+    h += '<label class="field">Вопрос<input type="text" data-bind="question" value="' + escapeAttr(task.question) + '"></label>';
+    h += '<div><b>Варианты ответа (отметьте правильный):</b><div id="optionsList">';
+    task.options.forEach((opt, i) => {
+      h += '<div class="row-input">' +
+             '<input type="radio" name="correct_' + task.id + '" data-correct="' + i + '"' + (task.correct === i ? ' checked' : '') + ' style="flex:0 0 24px">' +
+             '<input type="text" data-opt="' + i + '" value="' + escapeAttr(opt) + '">' +
+             '<button class="rm" data-rmopt="' + i + '">×</button>' +
+           '</div>';
+    });
+    h += '</div><button class="add-row" data-addopt="1">+ Добавить вариант</button></div>';
+  }
+
+  if (task.type === 'fill_blanks') {
+    h += '<label class="field">Предложение с ___ вместо пропуска<input type="text" data-bind="sentence" value="' + escapeAttr(task.sentence) + '"></label>';
+    h += '<div><b>Правильные слова:</b><div id="wordsList">';
+    task.correct_words.forEach((w, i) => {
+      h += '<div class="row-input"><input type="text" data-word="' + i + '" value="' + escapeAttr(w) + '">' +
+           '<button class="rm" data-rmword="' + i + '">×</button></div>';
+    });
+    h += '</div><button class="add-row" data-addword="1">+ Добавить слово</button></div>';
+  }
+
+  if (task.type === 'matching') {
+    h += '<div><b>Левый столбец и соответствие:</b><div id="matchList">';
+    task.left.forEach((l, i) => {
+      const pair = task.correct_pairs.find(p => p[0] === i);
+      const correctRight = pair ? pair[1] : 0;
+      h += '<div class="row-input">' +
+             '<input type="text" data-left="' + i + '" value="' + escapeAttr(l) + '" placeholder="Левый">' +
+             '<select data-match="' + i + '">';
+      task.right.forEach((r, j) => {
+        h += '<option value="' + j + '"' + (correctRight === j ? ' selected' : '') + '>' + escapeHtml(r) + '</option>';
+      });
+      h += '</select>' +
+           '<button class="rm" data-rmleft="' + i + '">×</button>' +
+           '</div>';
+    });
+    h += '</div><button class="add-row" data-addleft="1">+ Добавить пару</button></div>';
+    h += '<div style="margin-top:10px"><b>Правый столбец:</b><div id="rightList">';
+    task.right.forEach((r, j) => {
+      h += '<div class="row-input"><input type="text" data-right="' + j + '" value="' + escapeAttr(r) + '">' +
+           '<button class="rm" data-rmright="' + j + '">×</button></div>';
+    });
+    h += '</div><button class="add-row" data-addright="1">+ Добавить</button></div>';
+  }
+
+  if (task.type === 'sorting') {
+    h += '<div><b>Категории:</b><div id="catList">';
+    task.categories.forEach((c, i) => {
+      h += '<div class="row-input"><input type="text" data-cat="' + i + '" value="' + escapeAttr(c) + '">' +
+           '<button class="rm" data-rmcat="' + i + '">×</button></div>';
+    });
+    h += '</div><button class="add-row" data-addcat="1">+ Категория</button></div>';
+    h += '<div style="margin-top:10px"><b>Элементы и их категории:</b><div id="itemList">';
+    task.items.forEach((it, i) => {
+      h += '<div class="row-input">' +
+             '<input type="text" data-item="' + i + '" value="' + escapeAttr(it) + '">' +
+             '<select data-itemcat="' + i + '">';
+      task.categories.forEach((c, j) => {
+        h += '<option value="' + j + '"' + (task.correct[i] === j ? ' selected' : '') + '>' + escapeHtml(c) + '</option>';
+      });
+      h += '</select><button class="rm" data-rmitem="' + i + '">×</button></div>';
+    });
+    h += '</div><button class="add-row" data-additem="1">+ Элемент</button></div>';
+  }
+
+  if (task.type === 'open_question') {
+    h += '<label class="field">Вопрос<input type="text" data-bind="question" value="' + escapeAttr(task.question) + '"></label>';
+    h += '<div><b>Ключевые слова (любое из них = верно):</b><div id="kwList">';
+    task.keywords.forEach((k, i) => {
+      h += '<div class="row-input"><input type="text" data-kw="' + i + '" value="' + escapeAttr(k) + '">' +
+           '<button class="rm" data-rmkw="' + i + '">×</button></div>';
+    });
+    h += '</div><button class="add-row" data-addkw="1">+ Ключевое слово</button></div>';
+  }
+
+  h += '<label class="field" style="margin-top:15px">Баллы за задание<input type="number" min="1" data-bind="points" value="' + task.points + '"></label>';
+
+  h += '<div class="editor-buttons">' +
+       '<button class="btn-done" data-done="1">Готово</button>' +
+       '<button class="btn-cancel" data-cancel="1">Отмена</button>' +
+       '</div>';
+  h += '</div>';
+  return h;
+}
+
+function attachEditorHandlers(card, task) {
+  const t = task;
+
+  card.querySelectorAll('[data-bind]').forEach(el => {
+    el.addEventListener('input', () => {
+      const key = el.dataset.bind;
+      if (key === 'points') t.points = Math.max(1, parseInt(el.value) || 1);
+      else t[key] = el.value;
+      save();
+    });
+  });
+
+  card.querySelectorAll('[data-correct]').forEach(el => {
+    el.addEventListener('change', () => { t.correct = parseInt(el.dataset.correct); save(); });
+  });
+  card.querySelectorAll('[data-opt]').forEach(el => {
+    el.addEventListener('input', () => { t.options[parseInt(el.dataset.opt)] = el.value; save(); });
+  });
+  card.querySelectorAll('[data-rmopt]').forEach(el => {
+    el.addEventListener('click', () => {
+      const i = parseInt(el.dataset.rmopt);
+      if (t.options.length <= 2) return alert('Нужно минимум 2 варианта');
+      t.options.splice(i, 1);
+      if (t.correct >= t.options.length) t.correct = 0;
+      else if (t.correct > i) t.correct--;
+      rerenderEditor();
+    });
+  });
+  const addOpt = card.querySelector('[data-addopt]');
+  if (addOpt) addOpt.onclick = () => { t.options.push('Новый вариант'); rerenderEditor(); };
+
+  card.querySelectorAll('[data-word]').forEach(el => {
+    el.addEventListener('input', () => { t.correct_words[parseInt(el.dataset.word)] = el.value; save(); });
+  });
+  card.querySelectorAll('[data-rmword]').forEach(el => {
+    el.addEventListener('click', () => {
+      const i = parseInt(el.dataset.rmword);
+      if (t.correct_words.length <= 1) return alert('Нужно хотя бы одно слово');
+      t.correct_words.splice(i, 1);
+      rerenderEditor();
+    });
+  });
+  const addWord = card.querySelector('[data-addword]');
+  if (addWord) addWord.onclick = () => { t.correct_words.push(''); rerenderEditor(); };
+
+  card.querySelectorAll('[data-left]').forEach(el => {
+    el.addEventListener('input', () => { t.left[parseInt(el.dataset.left)] = el.value; save(); });
+  });
+  card.querySelectorAll('[data-match]').forEach(el => {
+    el.addEventListener('change', () => {
+      const li = parseInt(el.dataset.match);
+      const ri = parseInt(el.value);
+      const pair = t.correct_pairs.find(p => p[0] === li);
+      if (pair) pair[1] = ri;
+      else t.correct_pairs.push([li, ri]);
+      save();
+    });
+  });
+  card.querySelectorAll('[data-rmleft]').forEach(el => {
+    el.addEventListener('click', () => {
+      const i = parseInt(el.dataset.rmleft);
+      if (t.left.length <= 1) return alert('Нужна хотя бы одна пара');
+      t.left.splice(i, 1);
+      t.correct_pairs = t.correct_pairs
+        .filter(p => p[0] !== i)
+        .map(p => [p[0] > i ? p[0] - 1 : p[0], p[1]]);
+      rerenderEditor();
+    });
+  });
+  const addLeft = card.querySelector('[data-addleft]');
+  if (addLeft) addLeft.onclick = () => {
+    t.left.push('Новое понятие');
+    t.correct_pairs.push([t.left.length - 1, 0]);
+    rerenderEditor();
+  };
+
+  card.querySelectorAll('[data-right]').forEach(el => {
+    el.addEventListener('input', () => { t.right[parseInt(el.dataset.right)] = el.value; save(); });
+  });
+  card.querySelectorAll('[data-rmright]').forEach(el => {
+    el.addEventListener('click', () => {
+      const j = parseInt(el.dataset.rmright);
+      if (t.right.length <= 1) return alert('Хотя бы одно значение');
+      t.right.splice(j, 1);
+      t.correct_pairs = t.correct_pairs.map(p => [p[0], p[1] > j ? p[1] - 1 : p[1]]);
+      rerenderEditor();
+    });
+  });
+  const addRight = card.querySelector('[data-addright]');
+  if (addRight) addRight.onclick = () => { t.right.push('Новое значение'); rerenderEditor(); };
+
+  card.querySelectorAll('[data-cat]').forEach(el => {
+    el.addEventListener('input', () => { t.categories[parseInt(el.dataset.cat)] = el.value; save(); });
+  });
+  card.querySelectorAll('[data-rmcat]').forEach(el => {
+    el.addEventListener('click', () => {
+      const i = parseInt(el.dataset.rmcat);
+      if (t.categories.length <= 2) return alert('Минимум 2 категории');
+      t.categories.splice(i, 1);
+      t.correct = t.correct.map(c => c === i ? 0 : (c > i ? c - 1 : c));
+      rerenderEditor();
+    });
+  });
+  const addCat = card.querySelector('[data-addcat]');
+  if (addCat) addCat.onclick = () => { t.categories.push('Новая категория'); rerenderEditor(); };
+
+  card.querySelectorAll('[data-item]').forEach(el => {
+    el.addEventListener('input', () => { t.items[parseInt(el.dataset.item)] = el.value; save(); });
+  });
+  card.querySelectorAll('[data-itemcat]').forEach(el => {
+    el.addEventListener('change', () => { t.correct[parseInt(el.dataset.itemcat)] = parseInt(el.value); save(); });
+  });
+  card.querySelectorAll('[data-rmitem]').forEach(el => {
+    el.addEventListener('click', () => {
+      const i = parseInt(el.dataset.rmitem);
+      if (t.items.length <= 1) return alert('Хотя бы один элемент');
+      t.items.splice(i, 1);
+      t.correct.splice(i, 1);
+      rerenderEditor();
+    });
+  });
+  const addItem = card.querySelector('[data-additem]');
+  if (addItem) addItem.onclick = () => { t.items.push('Новый элемент'); t.correct.push(0); rerenderEditor(); };
+
+  card.querySelectorAll('[data-kw]').forEach(el => {
+    el.addEventListener('input', () => { t.keywords[parseInt(el.dataset.kw)] = el.value; save(); });
+  });
+  card.querySelectorAll('[data-rmkw]').forEach(el => {
+    el.addEventListener('click', () => {
+      const i = parseInt(el.dataset.rmkw);
+      if (t.keywords.length <= 1) return alert('Хотя бы одно слово');
+      t.keywords.splice(i, 1);
+      rerenderEditor();
+    });
+  });
+  const addKw = card.querySelector('[data-addkw]');
+  if (addKw) addKw.onclick = () => { t.keywords.push(''); rerenderEditor(); };
+
+  card.querySelector('[data-done]').onclick = () => { editingId = null; render(); };
+  card.querySelector('[data-cancel]').onclick = () => { editingId = null; render(); };
+}
+
+function rerenderEditor() {
+  save();
+  renderTaskList();
+}
+
+/* =========================================================
+   КНОПКИ ДОБАВЛЕНИЯ ЗАДАНИЙ
+   ========================================================= */
+document.querySelectorAll('.add-task-bar button').forEach(btn => {
+  btn.onclick = () => {
+    const t = createTask(btn.dataset.type);
+    state.tasks.push(t);
+    editingId = t.id;
+    render();
+    window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+  };
+});
+
+/* =========================================================
+   ВКЛАДКИ
+   ========================================================= */
+document.querySelectorAll('.tab').forEach(tab => {
+  tab.onclick = () => {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    const target = tab.dataset.tab;
+    document.getElementById('constructorTab').style.display = target === 'constructor' ? 'block' : 'none';
+    document.getElementById('previewTab').style.display = target === 'preview' ? 'block' : 'none';
+    if (target === 'preview') updatePreview();
+  };
+});
+
+function updatePreview() {
+  const frame = document.getElementById('previewFrame');
+  frame.srcdoc = generateHTML(state);
+}
+
+/* =========================================================
+   ЭКСПОРТ HTML-ЛИСТА
+   ========================================================= */
+document.getElementById('btnExportHtml').onclick = () => {
+  if (state.tasks.length === 0) {
+    if (!confirm('В листе нет заданий. Всё равно экспортировать?')) return;
+  }
+  const html = generateHTML(state);
+  const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
+  downloadBlob(blob, (state.title || 'worksheet') + '.html');
+};
+
+/* =========================================================
+   ОЧИСТКА
+   ========================================================= */
+document.getElementById('btnClear').onclick = () => {
+  if (!confirm('Удалить все данные и начать заново?')) return;
+  state = JSON.parse(JSON.stringify(DEFAULT_STATE));
+  nextId = 1;
+  editingId = null;
+  render();
+};
+
+/* =========================================================
+   ГЕНЕРАЦИЯ HTML РАБОЧЕГО ЛИСТА
+   ========================================================= */
+function generateHTML(data) {
+  const safeTitle = escapeHtml(data.title || 'Рабочий лист');
+  const dataJson = JSON.stringify(data);
+  return '<!DOCTYPE html>\n' +
+'<html lang="ru">\n' +
+'<head>\n' +
+'<meta charset="UTF-8">\n' +
+'<meta name="viewport" content="width=device-width, initial-scale=1.0">\n' +
+'<title>' + safeTitle + '</title>\n' +
+'<style>\n' + WORKSHEET_CSS + '\n</style>\n' +
+'</head>\n' +
+'<body>\n' +
+'<div class="container">\n' +
+'  <div class="site-header">\n' +
+'    <div class="brand-name">Мастерская М. Братухиной</div>\n' +
+'    <div class="brand-subtitle">Интерактивный рабочий лист</div>\n' +
+'  </div>\n' +
+'  <h1 id="title"></h1>\n' +
+'  <div class="instructions" id="instructions"></div>\n' +
+'  <div id="tasks"></div>\n' +
+'  <div class="buttons">\n' +
+'    <button id="checkBtn">Проверить</button>\n' +
+'    <button id="resetBtn">Сбросить</button>\n' +
+'    <button id="printBtn">🖨 Печать</button>\n' +
+'  </div>\n' +
+'  <div id="result"></div>\n' +
+'</div>\n' +
+'<script>\n' + WORKSHEET_JS.replace('__DATA__', dataJson) + '\n<\/script>\n' +
+'</body>\n' +
+'</html>';
+}
+
+/* =========================================================
+   СТИЛИ РАБОЧЕГО ЛИСТА (для экспорта и предпросмотра)
+   ========================================================= */
+const WORKSHEET_CSS = [
+'* { box-sizing: border-box; }',
+'body { font-family: Segoe UI, Tahoma, sans-serif; background: linear-gradient(135deg, #a8e6cf 0%, #dcedc1 50%, #ffd3b6 100%); margin: 0; padding: 20px; min-height: 100vh; color: #2c3e50; }',
+'.container { max-width: 800px; margin: 0 auto; background: #fff; border-radius: 20px; padding: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }',
+'.site-header { text-align: center; padding: 8px 0 20px 0; margin-bottom: 25px; border-bottom: 2px solid #ecf0f1; position: relative; }',
+'.site-header::after { content: ""; position: absolute; bottom: -2px; left: 50%; transform: translateX(-50%); width: 80px; height: 4px; background: #27ae60; border-radius: 4px; }',
+'.brand-name { font-size: 26px; font-weight: 800; letter-spacing: 0.5px; background: linear-gradient(90deg, #27ae60 0%, #e67e22 100%); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; line-height: 1.2; }',
+'.brand-subtitle { margin: 8px 0 0 0; font-size: 14px; color: #7f8c8d; font-weight: 500; }',
+'h1 { color: #27ae60; text-align: center; margin-top: 0; font-size: 28px; }',
+'.instructions { background: #eafaf1; padding: 15px; border-radius: 12px; border-left: 5px solid #27ae60; margin-bottom: 25px; font-size: 16px; }',
+'.task { background: #fdfaf6; border: 2px solid #f0e6d2; border-radius: 14px; padding: 20px; margin-bottom: 20px; }',
+'.task h3 { margin-top: 0; color: #e67e22; font-size: 18px; }',
+'.task-instruction { color: #7f8c8d; font-style: italic; margin-bottom: 12px; font-size: 15px; }',
+'.points { float: right; background: #ffeaa7; padding: 3px 10px; border-radius: 20px; font-size: 13px; font-weight: bold; color: #d35400; }',
+'.question { font-weight: bold; margin-bottom: 12px; font-size: 17px; }',
+'label.option { display: block; padding: 10px 15px; margin: 8px 0; background: #fff; border: 2px solid #dfe6e9; border-radius: 10px; cursor: pointer; transition: all 0.2s; }',
+'label.option:hover { border-color: #27ae60; background: #f0fff4; }',
+'label.option input { margin-right: 10px; transform: scale(1.2); }',
+'input[type="text"], textarea, select { width: 100%; padding: 12px; border: 2px solid #dfe6e9; border-radius: 10px; font-size: 16px; font-family: inherit; background: #fff; }',
+'input[type="text"]:focus, select:focus, textarea:focus { outline: none; border-color: #27ae60; }',
+'.blank-input { width: auto !important; display: inline-block; max-width: 200px; padding: 5px 10px !important; }',
+'.match-row, .sort-row { display: flex; align-items: center; gap: 10px; margin: 10px 0; }',
+'.match-row .left-item, .sort-row .item { flex: 1; font-weight: bold; padding: 10px; background: #fff; border-radius: 8px; border: 2px solid #dfe6e9; }',
+'.match-row select { flex: 1.5; }',
+'.sort-row select { flex: 1; }',
+'.correct { background: #d4edda !important; border-color: #27ae60 !important; }',
+'.incorrect { background: #f8d7da !important; border-color: #e74c3c !important; }',
+'.buttons { display: flex; gap: 15px; margin-top: 25px; flex-wrap: wrap; }',
+'button { flex: 1; padding: 15px 25px; font-size: 17px; font-weight: bold; border: none; border-radius: 12px; cursor: pointer; transition: all 0.2s; min-width: 150px; font-family: inherit; }',
+'#checkBtn { background: #27ae60; color: white; }',
+'#checkBtn:hover { background: #219150; }',
+'#resetBtn { background: #ecf0f1; color: #2c3e50; }',
+'#resetBtn:hover { background: #d5dbdb; }',
+'#printBtn { background: #e67e22; color: white; }',
+'#printBtn:hover { background: #d35400; }',
+'#result { margin-top: 20px; padding: 20px; border-radius: 12px; text-align: center; font-size: 20px; font-weight: bold; display: none; }',
+'#result.show { display: block; background: #eafaf1; color: #27ae60; border: 2px solid #27ae60; }',
+'@media (max-width: 500px) { .container { padding: 20px 15px; } h1 { font-size: 22px; } .brand-name { font-size: 20px; } .match-row, .sort-row { flex-direction: column; align-items: stretch; } }',
+/* ПЕЧАТЬ */
+'@media print {',
+'  @page { size: A4; margin: 12mm; }',
+'  html, body { background: #fff !important; padding: 0 !important; margin: 0 !important; }',
+'  .container { box-shadow: none !important; border-radius: 0 !important; padding: 0 !important; max-width: 100% !important; background: #fff !important; }',
+'  .site-header { display: none !important; }',
+'  .buttons { display: none !important; }',
+'  #result { display: none !important; }',
+'  .task { break-inside: avoid; page-break-inside: avoid; box-shadow: none !important; background: #fff !important; border: 1px solid #cfcfcf !important; }',
+'  .task-instruction { color: #555 !important; }',
+'  h1 { color: #27ae60 !important; font-size: 22px !important; }',
+'  .instructions { background: #f4fdf8 !important; border-left: 4px solid #27ae60 !important; }',
+'  select, input[type="text"], textarea { border: 1px solid #999 !important; background: #fff !important; color: #000 !important; }',
+'  label.option { border: 1px solid #ccc !important; background: #fff !important; }',
+'  .match-row .left-item, .sort-row .item { border: 1px solid #ccc !important; background: #fff !important; }',
+'  * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }',
+'}'
+].join('\n');
+
+/* =========================================================
+   СКРИПТ РАБОЧЕГО ЛИСТА
+   ========================================================= */
+const WORKSHEET_JS = [
+'const worksheet = __DATA__;',
+'document.getElementById("title").textContent = worksheet.title;',
+'document.getElementById("instructions").textContent = worksheet.instructions;',
+'const tasksContainer = document.getElementById("tasks");',
+'worksheet.tasks.forEach(function(task, idx) {',
+'  const div = document.createElement("div");',
+'  div.className = "task";',
+'  div.dataset.taskId = task.id;',
+'  div.dataset.type = task.type;',
+'  div.dataset.points = task.points;',
+'  let html = "<span class=\\"points\\">" + task.points + " балл(а)</span>";',
+'  html += "<h3>Задание " + (idx + 1) + "</h3>";',
+'  html += "<div class=\\"task-instruction\\">" + task.instruction + "</div>";',
+'  if (task.type === "single_choice") {',
+'    html += "<div class=\\"question\\">" + task.question + "</div>";',
+'    task.options.forEach(function(opt, i) {',
+'      html += "<label class=\\"option\\"><input type=\\"radio\\" name=\\"sc-" + task.id + "\\" value=\\"" + i + "\\"> " + opt + "</label>";',
+'    });',
+'  } else if (task.type === "fill_blanks") {',
+'    html += "<div class=\\"question\\">" + task.sentence.replace("___", "<input type=\\"text\\" class=\\"blank-input\\">") + "</div>";',
+'  } else if (task.type === "matching") {',
+'    task.left.forEach(function(l, i) {',
+'      html += "<div class=\\"match-row\\"><div class=\\"left-item\\">" + l + "</div>";',
+'      html += "<select class=\\"match-select\\" data-idx=\\"" + i + "\\"><option value=\\"\\">— выберите —</option>";',
+'      task.right.forEach(function(r, j) {',
+'        html += "<option value=\\"" + j + "\\">" + r + "</option>";',
+'      });',
+'      html += "</select></div>";',
+'    });',
+'  } else if (task.type === "sorting") {',
+'    task.items.forEach(function(item, i) {',
+'      html += "<div class=\\"sort-row\\"><div class=\\"item\\">" + item + "</div>";',
+'      html += "<select class=\\"sort-select\\" data-idx=\\"" + i + "\\"><option value=\\"\\">— категория —</option>";',
+'      task.categories.forEach(function(cat, j) {',
+'        html += "<option value=\\"" + j + "\\">" + cat + "</option>";',
+'      });',
+'      html += "</select></div>";',
+'    });',
+'  } else if (task.type === "open_question") {',
+'    html += "<div class=\\"question\\">" + task.question + "</div>";',
+'    html += "<textarea class=\\"open-textarea\\" rows=\\"3\\"></textarea>";',
+'  }',
+'  div.innerHTML = html;',
+'  tasksContainer.appendChild(div);',
+'});',
+'document.getElementById("checkBtn").addEventListener("click", function() {',
+'  let score = 0, maxScore = 0;',
+'  document.querySelectorAll(".task").forEach(function(taskEl) {',
+'    const type = taskEl.dataset.type;',
+'    const id = parseInt(taskEl.dataset.taskId);',
+'    const points = parseInt(taskEl.dataset.points);',
+'    const task = worksheet.tasks.find(function(t){ return t.id === id; });',
+'    maxScore += points;',
+'    let correct = false;',
+'    taskEl.querySelectorAll(".correct, .incorrect").forEach(function(el){ el.classList.remove("correct","incorrect"); });',
+'    if (type === "single_choice") {',
+'      const sel = taskEl.querySelector("input[type=radio]:checked");',
+'      const labels = taskEl.querySelectorAll("label.option");',
+'      labels.forEach(function(l, i) {',
+'        if (i === task.correct) l.classList.add("correct");',
+'        else if (sel && parseInt(sel.value) === i) l.classList.add("incorrect");',
+'      });',
+'      if (sel && parseInt(sel.value) === task.correct) correct = true;',
+'    } else if (type === "fill_blanks") {',
+'      const inp = taskEl.querySelector(".blank-input");',
+'      const val = (inp.value || "").trim().toLowerCase();',
+'      const expected = task.correct_words.map(function(w){ return w.toLowerCase(); });',
+'      if (expected.indexOf(val) !== -1) { inp.classList.add("correct"); correct = true; }',
+'      else inp.classList.add("incorrect");',
+'    } else if (type === "matching") {',
+'      let allC = true;',
+'      taskEl.querySelectorAll(".match-select").forEach(function(s) {',
+'        const i = parseInt(s.dataset.idx);',
+'        const v = s.value === "" ? -1 : parseInt(s.value);',
+'        const pair = task.correct_pairs.find(function(p){ return p[0] === i; });',
+'        if (pair && pair[1] === v) s.classList.add("correct");',
+'        else { s.classList.add("incorrect"); allC = false; }',
+'      });',
+'      correct = allC;',
+'    } else if (type === "sorting") {',
+'      let allC = true;',
+'      taskEl.querySelectorAll(".sort-select").forEach(function(s) {',
+'        const i = parseInt(s.dataset.idx);',
+'        const v = s.value === "" ? -1 : parseInt(s.value);',
+'        if (task.correct[i] === v) s.classList.add("correct");',
+'        else { s.classList.add("incorrect"); allC = false; }',
+'      });',
+'      correct = allC;',
+'    } else if (type === "open_question") {',
+'      const ta = taskEl.querySelector(".open-textarea");',
+'      const val = (ta.value || "").toLowerCase();',
+'      const kw = task.keywords.map(function(k){ return k.toLowerCase(); });',
+'      const ok = kw.some(function(k){ return k && val.indexOf(k) !== -1; });',
+'      if (ok) { ta.classList.add("correct"); correct = true; }',
+'      else ta.classList.add("incorrect");',
+'    }',
+'    if (correct) score += points;',
+'  });',
+'  const result = document.getElementById("result");',
+'  result.classList.add("show");',
+'  result.textContent = score === maxScore',
+'    ? "Отлично! Всё правильно! " + score + " из " + maxScore + " баллов."',
+'    : "Вы набрали " + score + " из " + maxScore + " баллов.";',
+'});',
+'document.getElementById("resetBtn").addEventListener("click", function() {',
+'  document.querySelectorAll("input[type=radio]").forEach(function(r){ r.checked = false; });',
+'  document.querySelectorAll("input[type=text]").forEach(function(i){ i.value = ""; });',
+'  document.querySelectorAll("textarea").forEach(function(t){ t.value = ""; });',
+'  document.querySelectorAll("select").forEach(function(s){ s.value = ""; });',
+'  document.querySelectorAll(".correct, .incorrect").forEach(function(el){ el.classList.remove("correct","incorrect"); });',
+'  document.getElementById("result").classList.remove("show");',
+'});',
+'document.getElementById("printBtn").addEventListener("click", function() {',
+'  window.print();',
+'});'
+].join('\n');
+
+/* =========================================================
+   УТИЛИТЫ
+   ========================================================= */
+function escapeHtml(s) {
+  if (s == null) return '';
+  return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+function escapeAttr(s) {
+  if (s == null) return '';
+  return String(s).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
+}
+function downloadBlob(blob, filename) {
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+/* =========================================================
+   СТАРТ
+   ========================================================= */
+render();
+</script>
+</body>
+</html>
