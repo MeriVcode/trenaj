@@ -1,0 +1,785 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Сложение и вычитание в пределах 20 — карточки</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    min-height: 100vh;
+    font-family: 'Nunito', 'Segoe UI', system-ui, -apple-system, sans-serif;
+    color: #2b2b45;
+    background:
+      radial-gradient(circle at 8% 0%,  #ffe3f1 0%, transparent 45%),
+      radial-gradient(circle at 92% 6%, #dceeff 0%, transparent 45%),
+      radial-gradient(circle at 50% 100%, #e8fbe9 0%, transparent 55%),
+      linear-gradient(180deg, #fbfdff, #f6f4ff);
+    background-attachment: fixed;
+    padding: 26px 16px 80px;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .page-head {
+    max-width: 1080px;
+    margin: 0 auto 24px;
+    text-align: center;
+  }
+
+  h1 {
+    margin: 0 0 6px;
+    font-size: clamp(24px, 4.2vw, 40px);
+    font-weight: 900;
+    letter-spacing: -0.5px;
+    background: linear-gradient(90deg, #4a9df5, #8f7bff 45%, #ff7ab8);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .subtitle {
+    margin: 0;
+    font-size: clamp(14px, 2vw, 17px);
+    font-weight: 600;
+    color: #757aa0;
+  }
+
+  .progress {
+    max-width: 380px;
+    margin: 18px auto 0;
+  }
+
+  .progress__bar {
+    height: 14px;
+    border-radius: 99px;
+    background: #e7e9f5;
+    overflow: hidden;
+    box-shadow: inset 0 2px 4px rgba(80,90,160,.12);
+  }
+
+  .progress__fill {
+    height: 100%;
+    width: 0%;
+    border-radius: 99px;
+    background: linear-gradient(90deg, #7ee0ff, #4dabf7 45%, #8f7bff);
+    transition: width .45s cubic-bezier(.3,.9,.3,1);
+  }
+
+  .progress__text {
+    margin-top: 8px;
+    font-size: 15px;
+    font-weight: 800;
+    color: #6b6f8d;
+  }
+
+  .reset-all {
+    margin-top: 12px;
+    border: none;
+    background: #eef1fb;
+    color: #5a5f85;
+    font-family: inherit;
+    font-weight: 800;
+    font-size: 14px;
+    padding: 9px 18px;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: background .2s, transform .12s;
+  }
+  .reset-all:hover  { background: #e2e7f8; }
+  .reset-all:active { transform: translateY(2px); }
+
+  .cards {
+    max-width: 1080px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(218px, 1fr));
+    gap: 18px;
+  }
+
+  .card {
+    perspective: 1200px;
+    -webkit-perspective: 1200px;
+    height: 340px;
+  }
+
+  .card__inner {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    transform-style: preserve-3d;
+    -webkit-transform-style: preserve-3d;
+    transition: transform .75s cubic-bezier(.3,.9,.3,1);
+  }
+
+  .card.flipped .card__inner { transform: rotateY(180deg); }
+
+  .card__face {
+    position: absolute;
+    inset: 0;
+    border-radius: 22px;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 14px 14px 16px;
+    background: #fff;
+    border: 3px solid var(--accent-soft);
+    box-shadow: 0 12px 26px rgba(80,90,160,.13), 0 1px 0 rgba(255,255,255,.8) inset;
+  }
+
+  .card__face--front {
+    background:
+      radial-gradient(ellipse 130% 62% at 50% -14%,
+        var(--accent-soft) 0%,
+        rgba(255,255,255,0) 72%),
+      #ffffff;
+  }
+
+  .card__face--front { pointer-events: auto; }
+  .card.flipped .card__face--front  { pointer-events: none; }
+  .card:not(.flipped) .card__face--back { pointer-events: none; }
+
+  .card.solved .card__face--front {
+    box-shadow: 0 12px 26px rgba(56,217,169,.30);
+  }
+
+  .ill {
+    width: 100%;
+    max-width: 152px;
+    height: 100px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    z-index: 1;
+  }
+  .ill svg { width: 100%; height: 100%; overflow: visible; }
+
+  .example {
+    font-size: 31px;
+    font-weight: 900;
+    letter-spacing: .5px;
+    margin: 6px 0 2px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .answer-form {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    justify-content: center;
+    margin-top: 4px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .answer-form input {
+    width: 80px;
+    height: 52px;
+    text-align: center;
+    font-family: inherit;
+    font-size: 25px;
+    font-weight: 800;
+    color: #2b2b45;
+    border-radius: 14px;
+    border: 3px solid #dfe4f5;
+    background: #f8faff;
+    outline: none;
+    transition: border-color .2s, box-shadow .2s, background .2s;
+    -moz-appearance: textfield;
+  }
+  .answer-form input::-webkit-outer-spin-button,
+  .answer-form input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+
+  .answer-form input:focus {
+    border-color: var(--accent);
+    background: #fff;
+    box-shadow: 0 0 0 4px var(--accent-soft);
+  }
+
+  .answer-form input.wrong {
+    border-color: #ff8a8a;
+    background: #fff5f5;
+    box-shadow: 0 0 0 4px #ffe4e4;
+  }
+
+  .answer-form button {
+    height: 52px;
+    padding: 0 20px;
+    border: none;
+    border-radius: 14px;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 17px;
+    font-weight: 900;
+    color: #fff;
+    background: var(--accent);
+    box-shadow: 0 4px 0 rgba(0,0,0,.14);
+    transition: transform .12s, filter .2s, box-shadow .12s;
+  }
+  .answer-form button:hover  { filter: brightness(1.08); }
+  .answer-form button:active {
+    transform: translateY(3px);
+    box-shadow: 0 1px 0 rgba(0,0,0,.14);
+  }
+
+  .feedback {
+    min-height: 20px;
+    margin-top: 8px;
+    font-size: 14px;
+    font-weight: 800;
+    color: #e0568a;
+    opacity: 0;
+    transition: opacity .2s;
+    position: relative;
+    z-index: 1;
+    text-align: center;
+  }
+  .feedback.show { opacity: 1; }
+
+  .card__face--back {
+    transform: rotateY(180deg);
+    -webkit-transform: rotateY(180deg);
+    background: linear-gradient(165deg, #ffffff 0%, var(--accent-soft) 100%);
+    justify-content: center;
+    gap: 9px;
+    text-align: center;
+    padding: 16px 15px;
+  }
+
+  .back__check {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    background: var(--accent);
+    color: #fff;
+    font-size: 24px;
+    font-weight: 900;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 6px 14px rgba(0,0,0,.14);
+    animation: pop .45s cubic-bezier(.2,1.6,.4,1) both;
+  }
+
+  @keyframes pop {
+    0%   { transform: scale(.2); opacity: 0; }
+    100% { transform: scale(1);  opacity: 1; }
+  }
+
+  .back__badge {
+    font-size: 13px;
+    font-weight: 900;
+    color: #fff;
+    background: var(--accent);
+    padding: 5px 13px;
+    border-radius: 99px;
+    letter-spacing: .2px;
+  }
+
+  .back__fact {
+    margin: 2px 0 0;
+    font-size: 14.5px;
+    line-height: 1.38;
+    font-weight: 600;
+    color: #3a3d5c;
+  }
+
+  .back__fact b { color: #2b2b45; }
+
+  .again {
+    margin-top: 4px;
+    border: none;
+    background: rgba(255,255,255,.85);
+    color: #5a5f85;
+    font-family: inherit;
+    font-weight: 800;
+    font-size: 13.5px;
+    padding: 9px 16px;
+    border-radius: 12px;
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgba(80,90,160,.12);
+    transition: background .2s, transform .12s;
+  }
+  .again:hover  { background: #fff; }
+  .again:active { transform: translateY(2px); }
+
+  @keyframes shake {
+    10%, 90% { transform: translateX(-4px); }
+    20%, 80% { transform: translateX(5px); }
+    30%, 50%, 70% { transform: translateX(-8px); }
+    40%, 60% { transform: translateX(8px); }
+  }
+  .card.shake .card__inner { animation: shake .55s ease; }
+
+  .celebration {
+    position: fixed;
+    left: 50%;
+    bottom: 22px;
+    transform: translate(-50%, 130%);
+    background: linear-gradient(120deg, #4dabf7, #8f7bff 60%, #ff7ab8);
+    color: #fff;
+    font-weight: 900;
+    font-size: 16px;
+    padding: 15px 26px;
+    border-radius: 18px;
+    box-shadow: 0 14px 30px rgba(90,80,200,.35);
+    transition: transform .55s cubic-bezier(.2,1.4,.4,1);
+    z-index: 50;
+    text-align: center;
+    max-width: calc(100vw - 32px);
+  }
+  .celebration.show { transform: translate(-50%, 0); }
+
+  @media (max-width: 420px) {
+    .card { height: 330px; }
+    .example { font-size: 28px; }
+  }
+</style>
+</head>
+<body>
+
+<header class="page-head">
+  <h1>Сложение и вычитание до 20</h1>
+  <p class="subtitle">Реши пример — и карточка перевернётся с интересным фактом! 🎁</p>
+
+  <div class="progress">
+    <div class="progress__bar"><div class="progress__fill" id="progressFill"></div></div>
+    <div class="progress__text" id="progressText">Решено: 0 из 8</div>
+  </div>
+
+  <button class="reset-all" id="resetAll" type="button">↺ Начать заново</button>
+</header>
+
+<main class="cards" id="cards">
+
+  <!-- КАРТОЧКА 1 : 7 + 5 = 12 -->
+  <div class="card" data-answer="12" style="--accent:#ff9f43; --accent-soft:#fff0dc;">
+    <div class="card__inner">
+      <div class="card__face card__face--front">
+        <div class="ill">
+          <svg viewBox="0 0 120 100" aria-hidden="true">
+            <defs>
+              <linearGradient id="c1g" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0" stop-color="#ffd66b"/><stop offset="1" stop-color="#ff9f43"/>
+              </linearGradient>
+            </defs>
+            <circle cx="60" cy="52" r="37" fill="url(#c1g)"/>
+            <circle cx="60" cy="52" r="29" fill="#fffdf5"/>
+            <g stroke="#c88a2e" stroke-width="3.5" stroke-linecap="round">
+              <line x1="60" y1="27" x2="60" y2="34"/>
+              <line x1="60" y1="70" x2="60" y2="77"/>
+              <line x1="35" y1="52" x2="42" y2="52"/>
+              <line x1="78" y1="52" x2="85" y2="52"/>
+              <line x1="42" y1="34" x2="47" y2="39"/>
+              <line x1="78" y1="34" x2="73" y2="39"/>
+              <line x1="42" y1="70" x2="47" y2="65"/>
+              <line x1="78" y1="70" x2="73" y2="65"/>
+            </g>
+            <line x1="60" y1="52" x2="60" y2="32" stroke="#3b3b52" stroke-width="4" stroke-linecap="round"/>
+            <line x1="60" y1="52" x2="77" y2="52" stroke="#3b3b52" stroke-width="4" stroke-linecap="round"/>
+            <circle cx="60" cy="52" r="4" fill="#ff9f43"/>
+          </svg>
+        </div>
+        <div class="example">7 + 5 = ?</div>
+        <form class="answer-form" autocomplete="off">
+          <input type="text" inputmode="numeric" maxlength="2" aria-label="Ответ для примера 7 плюс 5">
+          <button type="submit">✓</button>
+        </form>
+        <div class="feedback"></div>
+      </div>
+      <div class="card__face card__face--back">
+        <div class="back__check">✓</div>
+        <div class="back__badge">Верно! 7 + 5 = 12</div>
+        <p class="back__fact"><b>12 — это дюжина.</b> В году 12 месяцев, а на часах 12 чисел. Дюжина — это 12 предметов, например 12 карандашей в коробке.</p>
+        <button class="again" type="button">Решить снова</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- КАРТОЧКА 2 : 14 − 6 = 8 -->
+  <div class="card" data-answer="8" style="--accent:#9a5cf0; --accent-soft:#f1e8ff;">
+    <div class="card__inner">
+      <div class="card__face card__face--front">
+        <div class="ill">
+          <svg viewBox="0 0 120 100" aria-hidden="true">
+            <defs>
+              <linearGradient id="c2g" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0" stop-color="#c79cff"/><stop offset="1" stop-color="#9a5cf0"/>
+              </linearGradient>
+            </defs>
+            <g stroke="#9a5cf0" stroke-width="6.5" stroke-linecap="round" fill="none">
+              <path d="M35 63 C27 73 21 78 23 90"/>
+              <path d="M43 68 C35 80 29 84 31 94"/>
+              <path d="M51 70 C45 82 39 88 41 96"/>
+              <path d="M59 71 C55 84 51 90 53 97"/>
+              <path d="M67 70 C73 82 79 88 77 96"/>
+              <path d="M75 68 C83 80 89 84 87 94"/>
+              <path d="M83 63 C91 73 97 78 95 90"/>
+            </g>
+            <ellipse cx="60" cy="44" rx="30" ry="28" fill="url(#c2g)"/>
+            <circle cx="49" cy="41" r="7.5" fill="#fff"/>
+            <circle cx="49" cy="42" r="3.6" fill="#33224a"/>
+            <circle cx="71" cy="41" r="7.5" fill="#fff"/>
+            <circle cx="71" cy="42" r="3.6" fill="#33224a"/>
+            <circle cx="45.5" cy="37" r="1.6" fill="#fff"/>
+            <circle cx="67.5" cy="37" r="1.6" fill="#fff"/>
+            <path d="M53 55 q7 7 14 0" stroke="#33224a" stroke-width="3" fill="none" stroke-linecap="round"/>
+            <circle cx="39" cy="53" r="4.5" fill="#ff9ecb" opacity=".75"/>
+            <circle cx="81" cy="53" r="4.5" fill="#ff9ecb" opacity=".75"/>
+          </svg>
+        </div>
+        <div class="example">14 − 6 = ?</div>
+        <form class="answer-form" autocomplete="off">
+          <input type="text" inputmode="numeric" maxlength="2" aria-label="Ответ для примера 14 минус 6">
+          <button type="submit">✓</button>
+        </form>
+        <div class="feedback"></div>
+      </div>
+      <div class="card__face card__face--back">
+        <div class="back__check">✓</div>
+        <div class="back__badge">Верно! 14 − 6 = 8</div>
+        <p class="back__fact"><b>У осьминога 8 ног-щупалец.</b> И у паука тоже 8 ног. Вот почему число 8 любят все, у кого восемь лапок!</p>
+        <button class="again" type="button">Решить снова</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- КАРТОЧКА 3 : 9 + 9 = 18 -->
+  <div class="card" data-answer="18" style="--accent:#4a9df5; --accent-soft:#e2f0ff;">
+    <div class="card__inner">
+      <div class="card__face card__face--front">
+        <div class="ill">
+          <svg viewBox="0 0 120 100" aria-hidden="true">
+            <defs>
+              <linearGradient id="c3g" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0" stop-color="#7ee0ff"/><stop offset="1" stop-color="#4a9df5"/>
+              </linearGradient>
+              <path id="c3spark" d="M0 -8 L2.2 -2.2 L8 0 L2.2 2.2 L0 8 L-2.2 2.2 L-8 0 L-2.2 -2.2 Z"/>
+            </defs>
+            <circle cx="60" cy="50" r="36" fill="#4a9df5" opacity=".13"/>
+            <text x="60" y="73" font-size="64" font-weight="900" text-anchor="middle"
+                  fill="url(#c3g)" font-family="Nunito, Arial, sans-serif">9</text>
+            <g fill="#ffd66b">
+              <use href="#c3spark" x="20" y="24"/>
+              <use href="#c3spark" x="100" y="30" transform="scale(.8) translate(25 8)"/>
+              <use href="#c3spark" x="26" y="80" transform="scale(.7) translate(11 34)"/>
+              <use href="#c3spark" x="98" y="76" transform="scale(.65) translate(53 41)"/>
+            </g>
+          </svg>
+        </div>
+        <div class="example">9 + 9 = ?</div>
+        <form class="answer-form" autocomplete="off">
+          <input type="text" inputmode="numeric" maxlength="2" aria-label="Ответ для примера 9 плюс 9">
+          <button type="submit">✓</button>
+        </form>
+        <div class="feedback"></div>
+      </div>
+      <div class="card__face card__face--back">
+        <div class="back__check">✓</div>
+        <div class="back__badge">Верно! 9 + 9 = 18</div>
+        <p class="back__fact"><b>9 + 9 = 18.</b> А если сложить цифры числа 18: 1 + 8 = 9. Получается то же число 9! Это математический фокус.</p>
+        <button class="again" type="button">Решить снова</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- КАРТОЧКА 4 : 16 − 9 = 7 -->
+  <div class="card" data-answer="7" style="--accent:#ff6b6b; --accent-soft:#ffe8e8;">
+    <div class="card__inner">
+      <div class="card__face card__face--front">
+        <div class="ill">
+          <svg viewBox="0 0 120 100" aria-hidden="true">
+            <g fill="none" stroke-linecap="round">
+              <path d="M18 84 A42 42 0 0 1 102 84" stroke="#ff6b6b" stroke-width="8"/>
+              <path d="M26 84 A34 34 0 0 1 94 84" stroke="#ffa94d" stroke-width="8"/>
+              <path d="M34 84 A26 26 0 0 1 86 84" stroke="#ffd43b" stroke-width="8"/>
+              <path d="M42 84 A18 18 0 0 1 78 84" stroke="#69db7c" stroke-width="8"/>
+              <path d="M50 84 A10 10 0 0 1 70 84" stroke="#4dabf7" stroke-width="8"/>
+            </g>
+            <g fill="#ffffff" stroke="#e3ecf7" stroke-width="2">
+              <ellipse cx="20" cy="86" rx="17" ry="11"/>
+              <ellipse cx="33" cy="90" rx="13" ry="9"/>
+              <ellipse cx="100" cy="86" rx="17" ry="11"/>
+              <ellipse cx="87" cy="90" rx="13" ry="9"/>
+            </g>
+          </svg>
+        </div>
+        <div class="example">16 − 9 = ?</div>
+        <form class="answer-form" autocomplete="off">
+          <input type="text" inputmode="numeric" maxlength="2" aria-label="Ответ для примера 16 минус 9">
+          <button type="submit">✓</button>
+        </form>
+        <div class="feedback"></div>
+      </div>
+      <div class="card__face card__face--back">
+        <div class="back__check">✓</div>
+        <div class="back__badge">Верно! 16 − 9 = 7</div>
+        <p class="back__fact"><b>7 — волшебное число.</b> В радуге 7 цветов, в неделе 7 дней, а в музыке 7 нот. Вот сколько всего связано с семёркой!</p>
+        <button class="again" type="button">Решить снова</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- КАРТОЧКА 5 : 8 + 6 = 14 -->
+  <div class="card" data-answer="14" style="--accent:#37b9a0; --accent-soft:#e0f7f1;">
+    <div class="card__inner">
+      <div class="card__face card__face--front">
+        <div class="ill">
+          <svg viewBox="0 0 120 100" aria-hidden="true">
+            <rect x="18" y="14" width="84" height="72" rx="11" fill="#ffffff" stroke="#bfe6dd" stroke-width="3"/>
+            <path d="M18 25 a11 11 0 0 1 11-11 h62 a11 11 0 0 1 11 11 v9 H18 Z" fill="#37b9a0"/>
+            <circle cx="34" cy="23" r="3" fill="#ffffff" opacity=".85"/>
+            <circle cx="60" cy="23" r="3" fill="#ffffff" opacity=".85"/>
+            <circle cx="86" cy="23" r="3" fill="#ffffff" opacity=".85"/>
+            <g fill="#8fd9cb">
+              <circle cx="30" cy="50" r="4.5"/><circle cx="41" cy="50" r="4.5"/>
+              <circle cx="52" cy="50" r="4.5"/><circle cx="63" cy="50" r="4.5"/>
+              <circle cx="74" cy="50" r="4.5"/><circle cx="85" cy="50" r="4.5"/>
+              <circle cx="96" cy="50" r="4.5"/>
+            </g>
+            <g fill="#37b9a0">
+              <circle cx="30" cy="70" r="4.5"/><circle cx="41" cy="70" r="4.5"/>
+              <circle cx="52" cy="70" r="4.5"/><circle cx="63" cy="70" r="4.5"/>
+              <circle cx="74" cy="70" r="4.5"/><circle cx="85" cy="70" r="4.5"/>
+              <circle cx="96" cy="70" r="4.5"/>
+            </g>
+          </svg>
+        </div>
+        <div class="example">8 + 6 = ?</div>
+        <form class="answer-form" autocomplete="off">
+          <input type="text" inputmode="numeric" maxlength="2" aria-label="Ответ для примера 8 плюс 6">
+          <button type="submit">✓</button>
+        </form>
+        <div class="feedback"></div>
+      </div>
+      <div class="card__face card__face--back">
+        <div class="back__check">✓</div>
+        <div class="back__badge">Верно! 8 + 6 = 14</div>
+        <p class="back__fact"><b>Две недели — это 14 дней.</b> В одной неделе 7 дней, а 7 + 7 = 14. Вот и получается две недели.</p>
+        <button class="again" type="button">Решить снова</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- КАРТОЧКА 6 : 20 − 5 = 15 -->
+  <div class="card" data-answer="15" style="--accent:#f0a500; --accent-soft:#fff5da;">
+    <div class="card__inner">
+      <div class="card__face card__face--front">
+        <div class="ill">
+          <svg viewBox="0 0 120 100" aria-hidden="true">
+            <circle cx="60" cy="52" r="36" fill="#eaf4ff"/>
+            <path d="M60 52 L60 16 A36 36 0 0 1 96 52 Z" fill="#ffd43b"/>
+            <circle cx="60" cy="52" r="36" fill="none" stroke="#f0a500" stroke-width="3.5"/>
+            <g stroke="#c9a227" stroke-width="3" stroke-linecap="round">
+              <line x1="60" y1="16" x2="60" y2="22"/>
+              <line x1="96" y1="52" x2="90" y2="52"/>
+              <line x1="60" y1="88" x2="60" y2="82"/>
+              <line x1="24" y1="52" x2="30" y2="52"/>
+            </g>
+            <line x1="60" y1="52" x2="60" y2="25" stroke="#1c3f66" stroke-width="4.5" stroke-linecap="round"/>
+            <line x1="60" y1="52" x2="87" y2="52" stroke="#1c3f66" stroke-width="4.5" stroke-linecap="round"/>
+            <circle cx="60" cy="52" r="4.5" fill="#f0a500"/>
+          </svg>
+        </div>
+        <div class="example">20 − 5 = ?</div>
+        <form class="answer-form" autocomplete="off">
+          <input type="text" inputmode="numeric" maxlength="2" aria-label="Ответ для примера 20 минус 5">
+          <button type="submit">✓</button>
+        </form>
+        <div class="feedback"></div>
+      </div>
+      <div class="card__face card__face--back">
+        <div class="back__check">✓</div>
+        <div class="back__badge">Верно! 20 − 5 = 15</div>
+        <p class="back__fact"><b>15 минут — это четверть часа.</b> Если минутная стрелка пройдёт четверть круга, пройдёт ровно 15 минут.</p>
+        <button class="again" type="button">Решить снова</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- КАРТОЧКА 7 : 6 + 7 = 13 -->
+  <div class="card" data-answer="13" style="--accent:#6b5bd2; --accent-soft:#ece9ff;">
+    <div class="card__inner">
+      <div class="card__face card__face--front">
+        <div class="ill">
+          <svg viewBox="0 0 120 100" aria-hidden="true">
+            <defs>
+              <linearGradient id="c7g" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0" stop-color="#5b5b7a"/><stop offset="1" stop-color="#2f2f4a"/>
+              </linearGradient>
+            </defs>
+            <path d="M33 34 L28 9 L55 24 Z" fill="url(#c7g)"/>
+            <path d="M87 34 L92 9 L65 24 Z" fill="url(#c7g)"/>
+            <path d="M36 30 L33 16 L48 25 Z" fill="#ffb3c7"/>
+            <path d="M84 30 L87 16 L72 25 Z" fill="#ffb3c7"/>
+            <ellipse cx="60" cy="48" rx="33" ry="28" fill="url(#c7g)"/>
+            <ellipse cx="48" cy="45" rx="7" ry="8" fill="#a8e063"/>
+            <ellipse cx="72" cy="45" rx="7" ry="8" fill="#a8e063"/>
+            <ellipse cx="48" cy="45" rx="2.2" ry="6.5" fill="#1c1c2b"/>
+            <ellipse cx="72" cy="45" rx="2.2" ry="6.5" fill="#1c1c2b"/>
+            <path d="M55 56 L60 61 L65 56 Z" fill="#ff9ecb"/>
+            <path d="M60 61 v3 M60 64 q-5 5 -9 0 M60 64 q5 5 9 0"
+                  stroke="#1c1c2b" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+            <g stroke="#ffffff" stroke-width="1.8" stroke-linecap="round" opacity=".65">
+              <line x1="18" y1="50" x2="32" y2="53"/>
+              <line x1="18" y1="60" x2="32" y2="59"/>
+              <line x1="102" y1="50" x2="88" y2="53"/>
+              <line x1="102" y1="60" x2="88" y2="59"/>
+            </g>
+            <path d="M35 73 q25 13 50 0" stroke="#ff6b6b" stroke-width="6" fill="none" stroke-linecap="round"/>
+            <circle cx="60" cy="88" r="11" fill="#ffd43b" stroke="#f0a500" stroke-width="2"/>
+            <text x="60" y="93" font-size="13" font-weight="900" text-anchor="middle"
+                  fill="#7a5b00" font-family="Nunito, Arial, sans-serif">13</text>
+          </svg>
+        </div>
+        <div class="example">6 + 7 = ?</div>
+        <form class="answer-form" autocomplete="off">
+          <input type="text" inputmode="numeric" maxlength="2" aria-label="Ответ для примера 6 плюс 7">
+          <button type="submit">✓</button>
+        </form>
+        <div class="feedback"></div>
+      </div>
+      <div class="card__face card__face--back">
+        <div class="back__check">✓</div>
+        <div class="back__badge">Верно! 6 + 7 = 13</div>
+        <p class="back__fact"><b>13 — это 10 и 3.</b> А ещё 13 — простое число. Его можно разделить без остатка только на 1 и на само себя. Таких чисел мало!</p>
+        <button class="again" type="button">Решить снова</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- КАРТОЧКА 8 : 5 + 11 = 16 -->
+  <div class="card" data-answer="16" style="--accent:#38d9a9; --accent-soft:#e3fbf3;">
+    <div class="card__inner">
+      <div class="card__face card__face--front">
+        <div class="ill">
+          <svg viewBox="0 0 120 100" aria-hidden="true">
+            <rect x="26" y="12" width="68" height="68" rx="13" fill="#f2fffb" stroke="#38d9a9" stroke-width="3"/>
+            <g fill="#38d9a9">
+              <circle cx="38" cy="24" r="5"/><circle cx="54" cy="24" r="5"/>
+              <circle cx="70" cy="24" r="5"/><circle cx="86" cy="24" r="5"/>
+              <circle cx="38" cy="40" r="5"/><circle cx="54" cy="40" r="5"/>
+              <circle cx="70" cy="40" r="5"/><circle cx="86" cy="40" r="5"/>
+              <circle cx="38" cy="56" r="5"/><circle cx="54" cy="56" r="5"/>
+              <circle cx="70" cy="56" r="5"/><circle cx="86" cy="56" r="5"/>
+              <circle cx="38" cy="72" r="5"/><circle cx="54" cy="72" r="5"/>
+              <circle cx="70" cy="72" r="5"/><circle cx="86" cy="72" r="5"/>
+            </g>
+            <text x="60" y="97" font-size="15" font-weight="900" text-anchor="middle"
+                  fill="#1f9c78" font-family="Nunito, Arial, sans-serif">4 × 4</text>
+          </svg>
+        </div>
+        <div class="example">5 + 11 = ?</div>
+        <form class="answer-form" autocomplete="off">
+          <input type="text" inputmode="numeric" maxlength="2" aria-label="Ответ для примера 5 плюс 11">
+          <button type="submit">✓</button>
+        </form>
+        <div class="feedback"></div>
+      </div>
+      <div class="card__face card__face--back">
+        <div class="back__check">✓</div>
+        <div class="back__badge">Верно! 5 + 11 = 16</div>
+        <p class="back__fact"><b>16 — это 4 × 4.</b> Из 16 точек можно сложить ровный квадрат: 4 точки в ширину и 4 в высоту. Попробуй посчитать!</p>
+        <button class="again" type="button">Решить снова</button>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<div class="celebration" id="celebration">🎉 Молодец! Все 8 примеров решены верно!</div>
+
+<script>
+  const TOTAL = document.querySelectorAll('.card').length;
+  const fill        = document.getElementById('progressFill');
+  const progressTxt = document.getElementById('progressText');
+  const celebration = document.getElementById('celebration');
+
+  let solvedCount = 0;
+
+  function updateProgress() {
+    fill.style.width = (solvedCount / TOTAL * 100) + '%';
+    progressTxt.textContent = 'Решено: ' + solvedCount + ' из ' + TOTAL;
+    celebration.classList.toggle('show', solvedCount === TOTAL);
+  }
+
+  document.querySelectorAll('.card').forEach(function (card) {
+    const form     = card.querySelector('.answer-form');
+    const input    = card.querySelector('input');
+    const feedback = card.querySelector('.feedback');
+    const againBtn = card.querySelector('.again');
+    const answer   = Number(card.dataset.answer);
+
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      if (card.classList.contains('solved')) return;
+
+      const raw = input.value.trim().replace(',', '.').replace(/\s+/g, '');
+
+      if (raw === '') {
+        feedback.textContent = 'Напиши ответ 🙂';
+        feedback.classList.add('show');
+        input.classList.add('wrong');
+        return;
+      }
+
+      if (Number(raw) === answer) {
+        card.classList.add('solved', 'flipped');
+        feedback.classList.remove('show');
+        input.classList.remove('wrong');
+        input.blur();
+        solvedCount++;
+        updateProgress();
+      } else {
+        feedback.textContent = 'Почти! Попробуй ещё раз 💪';
+        feedback.classList.add('show');
+        input.classList.add('wrong');
+        card.classList.add('shake');
+        setTimeout(function () { card.classList.remove('shake'); }, 600);
+        input.select();
+      }
+    });
+
+    input.addEventListener('input', function () {
+      input.classList.remove('wrong');
+      feedback.classList.remove('show');
+    });
+
+    againBtn.addEventListener('click', function () {
+      if (!card.classList.contains('solved')) return;
+      card.classList.remove('flipped', 'solved');
+      input.value = '';
+      input.classList.remove('wrong');
+      feedback.classList.remove('show');
+      solvedCount = Math.max(0, solvedCount - 1);
+      updateProgress();
+      setTimeout(function () { input.focus(); }, 420);
+    });
+  });
+
+  document.getElementById('resetAll').addEventListener('click', function () {
+    document.querySelectorAll('.card').forEach(function (card) {
+      card.classList.remove('flipped', 'solved', 'shake');
+      const inp = card.querySelector('input');
+      inp.value = '';
+      inp.classList.remove('wrong');
+      card.querySelector('.feedback').classList.remove('show');
+    });
+    solvedCount = 0;
+    updateProgress();
+  });
+
+  updateProgress();
+</script>
+
+</body>
+</html>
