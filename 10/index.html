@@ -1,0 +1,274 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#382B43">
+  <title>Десятка без пересчёта — интерактивный тренажёр, 2 класс</title>
+  <style>
+    :root{--ink:#382B43;--plum:#563C65;--violet:#8E6BA1;--lav:#EEE5F4;--paper:#FFFDF8;--cream:#F6F0E7;--apricot:#F2BA8E;--gold:#E8A85B;--teal:#4B928A;--light-teal:#E6F3F0;--muted:#756B7B;--edge:#E9E0E8;--red:#BE7180;--shadow:0 18px 46px rgba(59,39,67,.11)}
+    *{box-sizing:border-box}html{min-height:100%;background:#F7F3EF}body{margin:0;font-family:'Trebuchet MS',Verdana,Arial,sans-serif;color:var(--ink);min-height:100vh;background:radial-gradient(circle at 0 0,#EDE2F3 0,transparent 35%),radial-gradient(circle at 100% 18%,#FBECE0 0,transparent 35%),#F8F5F2}
+    button{font:inherit;cursor:pointer;-webkit-tap-highlight-color:transparent}button:focus-visible{outline:4px solid #A871C8;outline-offset:3px}button:disabled{cursor:default;opacity:.65}
+    .app{max-width:1100px;margin:0 auto;padding:22px 22px 48px}.top{display:flex;justify-content:space-between;align-items:center;gap:14px;margin-bottom:24px}.brand{display:flex;align-items:center;gap:11px;font-weight:900;letter-spacing:.15px;font-size:16px}.mark{width:39px;height:39px;display:grid;place-items:center;border-radius:13px;background:var(--ink);color:#fff;font-size:23px;box-shadow:0 4px 0 #E5DCE8}.controls{display:flex;align-items:center;gap:8px}.utility{border:1px solid var(--edge);background:#FFFDF9;border-radius:14px;padding:10px 13px;color:var(--ink);font-weight:700;font-size:14px}.utility:hover{background:#F3EBF6}.hidden{display:none!important}
+    .panel{background:var(--paper);border:1px solid rgba(90,60,80,.1);border-radius:30px;box-shadow:var(--shadow);overflow:hidden}.intro{display:grid;grid-template-columns:1fr .92fr;min-height:560px}.intro-copy{padding:55px 55px 48px}.eyebrow{color:#76558B;font-size:12px;font-weight:900;letter-spacing:2.2px;text-transform:uppercase}.hero-title{font-size:clamp(37px,4.65vw,60px);letter-spacing:-1.9px;line-height:1.1;margin:16px 0 20px;font-weight:900}.hero-title .accent{color:var(--violet)}.lead{font-size:20px;line-height:1.6;color:#5F5466;max-width:440px;margin:0 0 24px}.intro-side{background:linear-gradient(145deg,#F5EAF2 0%,#FBEFE6 53%,#F7F5EE 100%);padding:36px 30px;display:flex;flex-direction:column;justify-content:center;align-items:center;position:relative;overflow:hidden}.float-spark{position:absolute;color:#B995C7;opacity:.65;font-size:28px}.float-spark.a{top:10%;left:11%}.float-spark.b{right:13%;top:20%}.float-spark.c{bottom:18%;right:16%}.ten-poster{padding:27px;background:#fffaf3;border:5px solid #fff;border-radius:28px;box-shadow:0 18px 30px rgba(60,34,70,.15);transform:rotate(-3deg);width:min(100%,400px)}.poster-caption{display:flex;align-items:center;justify-content:center;gap:9px;margin-bottom:24px;font-size:35px;font-weight:900}.poster-caption span:last-child{color:var(--teal)}.ten-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:9px;width:min(100%,480px);margin:0 auto}.ten-cell{aspect-ratio:1/1;border:2px solid #D9D0DE;border-radius:13px;background:#FFFCF8;display:grid;place-items:center;position:relative}.ten-cell::before{content:"";width:68%;height:68%;border-radius:50%;background:transparent;transition:transform .28s cubic-bezier(.2,1.3,.2,1),background .2s;transform:scale(.8)}.ten-cell.base::before{background:var(--violet);transform:scale(1)}.ten-cell.added::before{background:var(--gold);transform:scale(1);animation:pop .45s ease both}.ten-cell.empty{border-style:dashed;border-color:#D1BCCD;background:#FFF9F2}.poster-note{text-align:center;font-weight:900;color:#6C537A;font-size:18px;margin:22px 0 0}.mini-legend{display:flex;justify-content:center;gap:18px;margin-top:19px;font-size:15px;font-weight:bold;flex-wrap:wrap}.legend-dot{display:inline-block;width:13px;height:13px;border-radius:50%;background:var(--violet);margin-right:7px;vertical-align:-1px}.legend-dot.g{background:var(--gold)}
+    .pill-row{display:flex;gap:7px;flex-wrap:wrap;margin:22px 0 14px}.pill{padding:9px 12px;border-radius:99px;background:#F4EDF6;border:1px solid #E6DCEB;color:#624775;font-weight:800;font-size:13px}.settings-title{font-size:14px;font-weight:900;margin:12px 0 8px}.choice-group{display:flex;flex-wrap:wrap;gap:7px;margin:0 0 23px}.choice-group label{position:relative;cursor:pointer}.choice-group input{position:absolute;opacity:0;inset:0}.choice-group span{display:block;font-size:13px;font-weight:800;border:1px solid #DDCEDF;border-radius:12px;padding:9px 12px;background:#FFFAFD;color:#6C5675;transition:all .15s}.choice-group input:checked + span{background:var(--ink);border-color:var(--ink);color:white;box-shadow:0 3px 0 #CDC0D1}.choice-group input:focus-visible+span{outline:3px solid #A871C8;outline-offset:3px}
+    .primary,.secondary,.ghost{display:inline-flex;align-items:center;justify-content:center;gap:9px;border-radius:15px;padding:15px 23px;font-weight:900;font-size:17px;border:0;transition:transform .16s,background .16s;min-height:54px}.primary{background:var(--ink);color:white;box-shadow:0 5px 0 #CEC0D1}.primary:hover{background:#51365F;transform:translateY(-2px)}.secondary{color:var(--ink);background:#EFE8F2;border:1px solid #E0D5E5}.secondary:hover{background:#E7DDEE}.ghost{background:transparent;color:#7B6388;border:1px solid #D9CBE0}.ghost:hover{background:#F5F0F8}.smallprint{font-size:13px;line-height:1.55;color:#7D7181;margin:17px 0 0;max-width:490px}
+    .play{padding:24px 32px 32px}.play-header{display:flex;justify-content:space-between;align-items:center;gap:15px;flex-wrap:wrap}.stage-name{font-size:14px;color:#805D90;font-weight:900;text-transform:uppercase;letter-spacing:1.1px}.counter{font-size:14px;color:var(--muted);font-weight:800}.track{height:9px;border-radius:20px;background:#EEE5EE;overflow:hidden;margin:17px 0 23px}.track>div{height:100%;width:0;background:linear-gradient(90deg,#8E6BA1,#63AA9B);border-radius:20px;transition:width .4s}.stage-trail{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:0 0 23px}.trail-item{padding:10px 8px;border-radius:13px;background:#F6F1F7;color:#877A8E;text-align:center;font-weight:900;font-size:12px;border:1px solid transparent}.trail-item.active{background:#EDE1F4;color:#603C74;border-color:#D9C1E6}.trail-item.past{background:#E4F3EF;color:#357A71}
+    .lesson{border:1px solid #ECE5E9;border-radius:24px;padding:24px 22px 28px;background:linear-gradient(180deg,#FFFEFC,#FFFBF7);min-height:460px;text-align:center;position:relative}.lesson-title{font-size:clamp(21px,3.8vw,29px);font-weight:900;letter-spacing:-.6px;margin:0}.lesson-note{margin:11px auto 15px;font-size:16px;line-height:1.4;color:#76677C;max-width:620px}.equation{font-size:clamp(36px,7vw,64px);font-weight:900;letter-spacing:2px;color:var(--ink);margin:4px 0 22px}.blank{display:inline-block;min-width:50px;padding:0 4px;color:#A877BD;border-bottom:5px solid #B994C7;border-radius:4px}.equation.solved .blank{color:var(--teal);border-color:#8AC3AD}.visual-area{max-width:520px;margin:0 auto;min-height:120px;display:flex;flex-direction:column;align-items:center;justify-content:center}.visual-frame{width:min(100%,410px);background:#F7F2F8;padding:16px;border:1px solid #E6DAEB;border-radius:20px}.visual-frame .ten-grid{gap:8px}.answer-label{font-size:17px;font-weight:900;margin:23px 0 12px}.answers{display:flex;flex-wrap:wrap;justify-content:center;gap:12px;margin:0 auto;max-width:780px}.answer{min-width:70px;min-height:70px;padding:9px 12px;background:#fff;border:2px solid #DCCDE4;border-bottom-width:5px;border-radius:20px;color:#5B4070;font-size:29px;font-weight:900;position:relative;transition:transform .14s,border-color .14s,background .14s}.answer:hover:not(:disabled){transform:translateY(-3px);border-color:#AD84BE;background:#FBF7FD}.answer.wrong{border-color:#D8B0B0;background:#FFF3F2;color:#AD6565;animation:shake .3s}.answer.right{border-color:#76B39C;background:#E9F6F0;color:#28775A}.answer:disabled{opacity:1}.answer.has-dots{min-width:95px}.answer .dots{display:flex;justify-content:center;flex-wrap:wrap;gap:4px;max-width:72px;margin:7px auto 0}.answer .dots i{width:8px;height:8px;background:#E8AA71;border-radius:50%}
+    .hint-inline{margin-top:16px;min-height:32px}.hint-button{border:0;background:transparent;text-decoration:underline;text-underline-offset:3px;color:#7C6389;font-size:15px;font-weight:800;padding:5px}.hint-detail{font-size:15px;color:#6D537C;background:#F3EAF7;border-radius:12px;padding:11px 16px;max-width:460px;margin:11px auto 0}.feedback{max-width:650px;margin:16px auto 0;padding:13px 17px;border-radius:16px;background:#F7EEF7;color:#6F5381;font-size:16px;font-weight:800;line-height:1.55;min-height:53px}.feedback.success{background:#E7F4EE;color:#2A7965}.feedback.caution{background:#FFF1E9;color:#9A5B4C}.feedback strong{font-weight:900}.next-area{margin:20px auto 0;min-height:60px}.next-area .primary{min-width:185px}.talk{display:inline-flex;align-items:center;gap:8px;font-size:15px;font-weight:900;color:#2F766B;margin:9px 0 0}
+    .rekenrek{width:min(100%,515px);padding:24px 16px 17px;border:9px solid #B88C78;border-radius:18px;background:linear-gradient(135deg,#EFD7BA,#F8E6D0);box-shadow:0 8px 0 #E6D2C2;display:grid;gap:22px}.rod{height:44px;position:relative;display:flex;align-items:center;justify-content:space-between;gap:12px}.rod::before{content:"";position:absolute;left:0;right:0;height:5px;border-radius:5px;background:#9A827D;z-index:0}.bead-line{position:relative;z-index:1;display:flex;gap:3px;align-items:center}.bead-line.left{margin-right:auto}.bead-line.right{margin-left:auto}.bead{display:block;width:clamp(20px,4.6vw,31px);height:clamp(26px,5.3vw,38px);border-radius:44%;border:1px solid rgba(60,50,50,.2);box-shadow:inset -5px -5px 6px rgba(37,26,30,.16),inset 4px 4px 6px rgba(255,255,255,.4),1px 2px 2px rgba(51,35,30,.2)}.bead.red{background:#C87B81}.bead.ivory{background:#F7F1E1}.bead.pending{opacity:.8}.bead.arrive{animation:beadIn .45s cubic-bezier(.19,1,.4,1) both}.rack-legend{display:flex;justify-content:space-between;max-width:490px;width:100%;color:#755E72;font-size:12px;font-weight:900;padding:10px 5px 0}.family-box{display:flex;justify-content:center;gap:12px;margin:1px auto 12px}.family-num{border-radius:18px;background:#F0E8F5;color:#6C5080;min-width:66px;padding:10px 17px;font-size:26px;font-weight:900}.family-num.last{background:#E5F3EF;color:#387D71}.family-progress{display:flex;justify-content:center;gap:7px;flex-wrap:wrap;margin:0 0 20px}.family-chip{border:1px dashed #DACFE0;padding:9px 11px;border-radius:11px;color:#91869A;font-size:14px;font-weight:900;background:white;min-width:105px}.family-chip.done{border:1px solid #B8D9CC;color:#357E6D;background:#EDF8F2}.family-chip.current{border:1px solid #BC9BD0;color:#6E4A83;background:#F3EAF7}
+    .memory-visual{width:min(100%,390px);margin:5px auto 0;padding:14px;background:#FAF5FB;border-radius:16px}.mind-placeholder{width:min(100%,400px);border:2px dashed #E4D5E6;border-radius:23px;background:#F9F5FA;padding:22px 15px;color:#987E9C;font-size:19px;font-weight:900;display:flex;align-items:center;justify-content:center;gap:13px;min-height:110px}.mind-placeholder .star{font-size:30px;color:#C39ACD}
+    .stage-transition{padding:68px 32px;text-align:center;max-width:690px;margin:0 auto}.celebration{font-size:65px;margin:0 0 14px}.stage-transition h2{font-size:clamp(29px,5vw,44px);letter-spacing:-1px;margin:0 0 15px}.stage-transition p{font-size:19px;line-height:1.65;color:#6C5A73;margin:0 auto 24px}.tag{display:inline-block;margin-bottom:15px;border-radius:99px;padding:9px 15px;color:#487E70;background:#E6F3EE;font-size:14px;font-weight:900}.done-view{padding:40px 25px 49px;text-align:center}.done-view h1{font-size:clamp(31px,5vw,52px);line-height:1.15;letter-spacing:-1.5px;margin:13px 0 18px}.done-view>p{font-size:18px;color:#66566C;line-height:1.55;max-width:670px;margin:0 auto 24px}.achievement{margin:0 auto 24px;display:flex;flex-wrap:wrap;gap:10px;justify-content:center}.achievement span{border-radius:16px;padding:13px 16px;background:#F1EAF4;font-weight:900;color:#72547E}.final-note{max-width:670px;padding:16px 20px;margin:26px auto 0;background:#F0F7F5;border-radius:15px;color:#457A70;line-height:1.5;font-size:15px}.footer{text-align:center;margin-top:20px;color:#8C7C91;font-size:12px;line-height:1.6}
+    @keyframes pop{0%{transform:scale(.15)}65%{transform:scale(1.2)}100%{transform:scale(1)}}@keyframes shake{0%,100%{transform:translateX(0)}35%{transform:translateX(-6px)}70%{transform:translateX(5px)}}@keyframes beadIn{0%{transform:translateX(15px) scale(.8)}100%{transform:translateX(0) scale(1)}}
+    @media(max-width:760px){.app{padding:14px 12px 28px}.intro{grid-template-columns:1fr}.intro-copy{padding:34px 26px 26px}.intro-side{min-height:300px;padding:25px 28px}.ten-poster{max-width:340px}.top{margin-bottom:13px}.brand{font-size:13px}.mark{width:34px;height:34px}.utility{padding:9px;font-size:12px}.play{padding:16px 14px 22px}.lesson{padding:24px 12px;min-height:420px}.stage-trail{gap:4px}.trail-item{padding:10px 3px;font-size:10px}.answer{min-width:60px;min-height:62px;font-size:25px;border-radius:15px}.answer.has-dots{min-width:75px}.ten-cell{border-radius:9px}.visual-frame{padding:12px}.rekenrek{gap:11px;padding:13px 8px;border-width:6px}.rod{gap:8px}.bead-line{gap:1px}.bead{width:clamp(16px,4vw,28px);height:clamp(21px,5.3vw,36px)}.family-chip{min-width:80px;font-size:12px;padding:8px 7px}.panel{border-radius:24px}}
+    @media(max-width:390px){.controls{gap:5px}.brand{gap:7px;font-size:12px}.utility{font-size:11px}.answer{min-width:49px;padding:7px}.answers{gap:7px}.lead{font-size:17px}.mini-legend{font-size:12px}.bead{width:15px;height:22px}.rod{gap:3px}}
+    @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+    @media print{.top,.footer,.utility,.controls,.answers,.next-area,.hint-inline{display:none!important}body{background:white}.panel{box-shadow:none;border:0}}
+    .intro-side .poster-operations{display:grid;gap:9px;width:100%;margin:17px 0 0}
+    .intro-side .poster-operations span{display:block;text-align:center;padding:10px 12px;background:#fff;border:1px solid #EBE1E8;border-radius:12px;font-size:21px;font-weight:900;color:#4C756B}
+    .intro-side .poster-operations span:first-child{color:#604773}
+    .pair-nav{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:16px}
+    .pair-nav span{display:inline-flex;align-items:center;justify-content:center;min-width:65px;padding:9px 10px;border-radius:13px;background:#F4EDF6;color:#746380;font-weight:900;font-size:14px}
+    .pair-nav span.current{background:#5C426A;color:white}.pair-nav span.done{background:#E6F4EC;color:#2A7861}
+    .visual-explain{margin:13px auto 0;text-align:center;font-size:16px;color:#765F7D;font-weight:800;line-height:1.5}
+    .action-remove{margin:17px auto 4px;border:2px solid #B89BC6;background:#EFE3F5;color:#553B65;padding:14px 22px;border-radius:16px;font-size:17px;font-weight:900;min-height:55px;box-shadow:0 4px 0 #D7C7DF}
+    .action-remove:hover{background:#E6D6EE}.action-remove:disabled{opacity:1;background:#E5F3EB;border-color:#95C9B4;box-shadow:none;color:#30785D}
+    .subtraction-demo{width:min(100%,475px);background:#F8F3F9;border:1px solid #E9DDEE;border-radius:22px;padding:18px;margin:5px auto}
+    .subtraction-demo .ten-grid{max-width:380px}
+    .ten-cell.removed{border:2px dashed #C8BACA;background:#FEFAFD;animation:fadeGroup .42s ease both}
+    .ten-cell.removed::before{background:transparent;transform:scale(.1)}
+    .count-labels{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:13px}
+    .count-labels span{font-size:13px;border-radius:99px;padding:7px 11px;background:#FFF;color:#5C4B63;font-weight:900}
+    .count-labels .purple:before,.count-labels .gold:before{content:'';display:inline-block;width:11px;height:11px;border-radius:50%;margin-right:6px;background:#8E6BA1}
+    .count-labels .gold:before{background:#E8A85B}
+    .family-strip{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin:11px auto 15px;max-width:580px}
+    .family-strip span{font-size:15px;font-weight:900;color:#8A7592;background:#F4EEF6;border-radius:12px;padding:11px 5px}
+    .family-strip span.active{background:#E9DFF0;color:#563D66;border:1px solid #CAB6D5}
+    .family-strip span.done{background:#DFF2E9;color:#307560}
+    .lesson-callout{margin:0 auto 14px;background:#FEF4E9;border-radius:14px;padding:12px 18px;max-width:590px;color:#875C3C;font-weight:800;font-size:16px;line-height:1.5}
+    .worked-families{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:11px;margin:20px auto;max-width:850px;text-align:left}
+    .worked-family{background:#FAF5FA;border:1px solid #E4D9E7;border-radius:16px;padding:14px 17px;display:flex;flex-direction:column;gap:6px;font-size:17px;font-weight:900}
+    .worked-family strong{font-size:21px;color:#674878}.worked-family span{color:#3B7968}
+    .subtraction-demo .removed-caption{margin:12px 0 0;color:#3F806C;font-size:16px;font-weight:900}
+    .action-wait{max-width:500px;margin:13px auto 0;color:#8C6887;font-size:14px}
+    .stage-transition .learned{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;max-width:510px;margin:8px auto 22px}
+    .stage-transition .learned b{background:#F5EDF8;border-radius:10px;padding:10px 5px;color:#694A77;font-size:15px}
+    @keyframes fadeGroup{0%{background:#FEF4DF}100%{background:#FEFAFD}}
+    @media(max-width:600px){.family-strip span{font-size:12px}.subtraction-demo{padding:12px}.action-remove{font-size:15px;padding:12px 14px}.stage-transition .learned{grid-template-columns:repeat(3,1fr)}.worked-families{grid-template-columns:1fr}.count-labels span{font-size:12px}}
+  </style>
+</head>
+<body>
+<div class="app">
+  <header class="top"><div class="brand"><span class="mark" aria-hidden="true">✦</span><span>Мастерская математики · 2 класс</span></div><div class="controls"><button class="utility" id="soundButton" aria-pressed="false" title="Включить или выключить звуковой сигнал">♪ Звук: выкл.</button><button class="utility" id="fullButton" title="Развернуть тренажёр">⛶ Экран</button></div></header>
+  <main id="main" aria-live="off"></main>
+  <footer class="footer">Состав числа 10 · Наглядность → действие группой → связи между числами → счёт в уме<br>Для самостоятельной работы или занятия с педагогом · Работает без интернета</footer>
+</div>
+<script>
+'use strict';
+(function () {
+  const main = document.getElementById('main');
+  const soundBtn = document.getElementById('soundButton');
+  const fullBtn = document.getElementById('fullButton');
+  const PAIRS = [5,6,7,8,9];
+  const STAGES = [
+    {name:'Вижу, сколько не хватает',short:'Рамка',sub:'Посмотри на две пятёрки. Сколько пустых мест осталось до десяти?'},
+    {name:'Двигаю всю группу сразу',short:'Бусины',sub:'Верхняя нить показывает первое число. Сколько бусин передвинуть одним движением?'},
+    {name:'Семья десятки: сложение и вычитание',short:'Семья',sub:'Сначала собери десятку, затем убирай нужную группу фишек.'},
+    {name:'Вспоминаю без картинки',short:'В уме',sub:'Сначала произнеси пример и ответ. Потом выбери число.'}
+  ];
+  const state = {screen:'intro',stage:0,turn:0,correct:0,locked:false,removed:false,help:false,sound:false,rounds:[],mistakes:0};
+  const TOTAL = 30;
+  let audio;
+  const sum = a => 10-a;
+  function answerOptions(answer){
+    const values = new Set([answer]);
+    for(const n of [answer-1,answer+1,10-answer,answer-2,answer+2,5,3,7,8,9,1,4,2,6,10]) {
+      if(n>=1 && n<=10 && values.size<4)values.add(n);
+    }
+    return [...values].sort((a,b)=>a-b);
+  }
+  function rounds(){
+    return [
+      PAIRS.map(a=>({a,b:sum(a),kind:'frame',variant:0,answer:sum(a)})),
+      PAIRS.map(a=>({a,b:sum(a),kind:'beads',variant:0,answer:sum(a)})),
+      PAIRS.flatMap(a=>[0,1,2].map(variant=>({a,b:sum(a),kind:'family',variant,answer:variant===0?sum(a):variant===1?a:sum(a)}))),
+      PAIRS.map((a,i)=>({a,b:sum(a),kind:'mind',variant:[0,1,2,3,0][i],answer:[sum(a),sum(a),a,sum(a),sum(a)][i]}))
+    ];
+  }
+  function current(){return state.rounds[state.stage][state.turn]}
+  function progressNum(){return state.rounds.slice(0,state.stage).reduce((x,y)=>x+y.length,0)+state.turn+1}
+  function grid(cells, label='Рамка из десяти клеток'){
+    return `<div class="ten-grid" role="img" aria-label="${label}">${cells.map(type=>`<div aria-hidden="true" class="ten-cell ${type}"></div>`).join('')}</div>`;
+  }
+  function frame(a,filled=false,compact=false){
+    const types=Array.from({length:10},(_,i)=>i<a?'base':filled?'added':'empty');
+    return `<div class="${compact?'memory-visual':'visual-frame'}">${grid(types,`Занято ${filled?10:a} мест из 10. ${filled?'Десятка собрана':`Не хватает ${sum(a)}`}`)}</div>`;
+  }
+  function poster(){return `<div class="ten-poster" style="transform:rotate(-2deg)"><div class="poster-caption"><span>7 + 3</span><span>= 10</span></div>${grid(Array.from({length:10},(_,i)=>i<7?'base':'added'))}<div class="mini-legend"><span><i class="legend-dot"></i>7</span><span><i class="legend-dot g"></i>3</span></div><div class="poster-operations"><span>10 − 3 = 7</span><span>10 − 7 = 3</span></div><div class="poster-note">Одна десятка — три связанных примера</div></div>`}
+  function startHtml(){return `<section class="panel intro"><div class="intro-copy"><div class="eyebrow">2 класс · интерактивный тренажёр</div><h1 class="hero-title">Десятка<br><span class="accent">без пересчёта</span></h1><p class="lead">Учимся видеть число целиком, дополнять до 10 и находить ответ на вычитание по одной картинке.</p><div class="pill-row"><span class="pill">① Дополняю до 10</span><span class="pill">② Двигаю группой</span><span class="pill">③ Убираю группой</span><span class="pill">④ Считаю в уме</span></div><div class="lesson-callout" style="margin:25px 0">Начинаем с <b>5 + 5</b>, затем <b>6 + 4</b>, <b>7 + 3</b>, <b>8 + 2</b>, <b>9 + 1</b>. Каждую пару разбираем на сложение и два вычитания.</div><button class="primary" data-action="start">Начать с 5 + 5 <span aria-hidden="true">→</span></button><p class="smallprint">4 этапа · 30 небольших действий · Без таймера и штрафов · Можно повторить любое занятие.</p></div><div class="intro-side">${poster()}</div></section>`}
+  function formula(r, solved){
+    const q=solved?`<span class="answer-value">${r.answer}</span>`:'<span class="blank">?</span>';
+    let text;
+    if(r.kind==='family'){
+      if(r.variant===0)text=`${r.a} + ${q} = 10`;
+      if(r.variant===1)text=`10 − ${r.b} = ${q}`;
+      if(r.variant===2)text=`10 − ${r.a} = ${q}`;
+    } else if(r.kind==='mind') {
+      if(r.variant===0)text=`${r.a} + ${q} = 10`;
+      if(r.variant===1)text=`${q} + ${r.a} = 10`;
+      if(r.variant===2)text=`10 − ${r.b} = ${q}`;
+      if(r.variant===3)text=`10 − ${r.a} = ${q}`;
+    } else text=`${r.a} + ${q} = 10`;
+    return `<div class="equation ${solved?'solved':''}">${text}</div>`;
+  }
+  function beads(a,complete){
+    function rod(n,lower){
+      function beadsPart(start,count,pending){return Array.from({length:count},(_,j)=>`<span class="bead ${start+j<5?'red':'ivory'} ${pending?'pending':''} ${!lower&&complete&&start+j>=a?'arrive':''}"></span>`).join('')}
+      return `<div class="rod"><div class="bead-line left">${beadsPart(0,n,false)}</div><div class="bead-line right">${beadsPart(n,10-n,true)}</div></div>`;
+    }
+    return `<div class="rekenrek" role="img" aria-label="Сверху ${complete?10:a} бусин слева. Снизу все десять бусин слева"><div>${rod(complete?10:a,false)}</div><div>${rod(10,true)}</div></div><div class="rack-legend"><span>Верхняя нить — добавь группу</span><span>Нижняя нить — 10</span></div>`;
+  }
+  function pairNav(active){return `<div class="pair-nav" aria-label="Пары десятки">${PAIRS.map((a,i)=>`<span class="${i<active?'done':i===active?'current':''}">${a} + ${sum(a)}</span>`).join('')}</div>`}
+  function familyStrip(r){
+    const names=[`${r.a} + ${r.b} = 10`,`10 − ${r.b} = ${r.a}`,`10 − ${r.a} = ${r.b}`];
+    return `<div class="family-strip" aria-label="Семья чисел">${names.map((x,i)=>`<span class="${i<r.variant||state.locked&&i===r.variant?'done':i===r.variant?'active':''}">${i<r.variant||state.locked&&i===r.variant?x:`${i+1}. ${i===0?'Сложи':'Вычти'}`}</span>`).join('')}</div>`;
+  }
+  function subtractionVisual(r){
+    const remove=r.variant===1?r.b:r.a;
+    const cells=Array.from({length:10},(_,i)=>{
+      const isA=i<r.a;
+      return state.removed && (r.variant===1?!isA:isA)?'removed':isA?'base':'added';
+    });
+    const remaining=r.variant===1?r.a:r.b;
+    return `<div class="subtraction-demo">${grid(cells, state.removed?`Из десяти убрали ${remove} сразу. Осталось ${remaining}`:`Полная десятка состоит из ${r.a} фиолетовых фишек и ${r.b} золотистых фишек`)}<div class="count-labels">${state.removed?`<span>Убрали группу: ${remove}</span><span>Осталась другая группа: ?</span>`:`<span class="purple">${r.a} фиолетовых</span><span class="gold">${r.b} золотистых</span>`}</div>${state.removed?`<div class="removed-caption">Убрали ${remove} одним движением. Сколько осталось?</div>`:`<button class="action-remove" data-action="remove">Убрать ${remove} ${remove===1?'фишку':remove<5?'фишки':'фишек'} одним движением →</button>`}</div>`;
+  }
+  function visual(r){
+    if(r.kind==='frame')return frame(r.a,state.locked);
+    if(r.kind==='beads')return beads(r.a,state.locked);
+    if(r.kind==='family')return r.variant===0?`<div class="lesson-callout">Было ${r.a}. Добавь ${r.b} одним движением, чтобы заполнить десятку.</div>${frame(r.a,state.locked)}`:subtractionVisual(r);
+    return state.help?frame(r.a,state.locked,true):`<div class="mind-placeholder"><span class="star" aria-hidden="true">✦</span>Представь десятку в уме<span class="star" aria-hidden="true">✦</span></div>`;
+  }
+  function caption(r){
+    if(r.kind==='family')return r.variant===0?`Сколько нужно добавить к ${r.a}?`:`Из 10 нужно убрать ${r.variant===1?r.b:r.a} сразу. Сколько останется?`;
+    if(r.kind==='mind')return 'Назови ответ вслух. Затем выбери число.';
+    return STAGES[state.stage].sub;
+  }
+  function questionHtml(){
+    const r=current(), i=progressNum(), st=STAGES[state.stage];
+    const waitForRemoval = r.kind==='family' && r.variant>0 && !state.removed;
+    const choices=answerOptions(r.answer).map(v=>`<button class="answer ${r.kind==='frame'?'has-dots':''} ${state.locked&&v===r.answer?'right':''}" data-answer="${v}" ${state.locked||waitForRemoval?'disabled':''} aria-label="Ответ ${v}">${v}${r.kind==='frame'?`<span class="dots" aria-hidden="true">${Array.from({length:v},()=>'<i></i>').join('')}</span>`:''}</button>`).join('');
+    return `<section class="panel play"><div class="play-header"><div class="stage-name">Этап ${state.stage+1} из 4 · ${st.short}</div><div class="counter">Задание ${i} из ${TOTAL}</div></div><div class="track"><div style="width:${state.correct/TOTAL*100}%"></div></div><div class="stage-trail">${STAGES.map((x,n)=>`<div class="trail-item ${n<state.stage?'past':n===state.stage?'active':''}">${n<state.stage?'✓ ':''}${n+1}. ${x.short}</div>`).join('')}</div><div class="lesson"><h2 class="lesson-title">${st.name}</h2><p class="lesson-note">${caption(r)}</p>${pairNav(PAIRS.indexOf(r.a))}${r.kind==='family'?familyStrip(r):''}${formula(r,state.locked)}<div class="visual-area">${visual(r)}</div><div class="answer-label">${state.locked?'Верно!':waitForRemoval?'Сначала убери фишки целой группой':'Какое число нужно вставить?'}</div><div class="answers ${waitForRemoval?'hidden':''}">${choices}</div><div class="hint-inline">${!state.locked&&!waitForRemoval?`<button class="hint-button" data-action="hint">${state.help?'Скрыть подсказку':'Нужна подсказка?'}</button>`:''}<div id="hintArea">${state.help&&!state.locked?hintContent(r):''}</div></div><div class="feedback hidden" id="feedback" aria-live="polite" role="status"></div><div class="next-area" id="nextArea">${state.locked?'<button class="primary" data-action="next">Дальше →</button>':''}</div></div></section>`;
+  }
+  function hintContent(r){
+    if(r.kind==='family'&&r.variant!==0)return `<div class="hint-detail">Посмотри на полную десятку: одна группа ${r.a}, вторая ${r.b}. После того как уберёшь одну группу, в рамке останется другая.</div>`;
+    if(r.kind==='beads')return `<div class="hint-detail">На верхней нити нужно заполнить все 10 мест. Сколько бусин справа ещё не сдвинуто?</div>`;
+    if(r.kind==='mind')return `<div class="hint-detail">Вспомни пару: ${r.a} и ${r.b} дают 10. Проверь по рамке ниже.</div>`;
+    return `<div class="hint-detail">Вверху 5 клеток. Во втором ряду посмотри на свободные клетки.</div>`;
+  }
+  function successMessage(r){
+    if(r.kind==='family'){
+      if(r.variant===0)return `${r.a} плюс ${r.b} — десять. Добавили целую группу.`;
+      if(r.variant===1)return `Из 10 убрали ${r.b}. Осталось ${r.a}.`;
+      return `Из 10 убрали ${r.a}. Осталось ${r.b}. Одна пара — и сложение, и вычитание!`;
+    }
+    if(r.kind==='mind'&&r.variant===2)return `Из 10 убрали ${r.b} — осталось ${r.a}.`;
+    if(r.kind==='mind'&&r.variant===3)return `Из 10 убрали ${r.a} — осталось ${r.b}.`;
+    return `${r.a} дополняем числом ${r.b}, получается 10.`;
+  }
+  function onRemove(){
+    const r=current();if(r.kind!=='family'||r.variant===0||state.removed||state.locked)return;
+    state.removed=true;
+    document.querySelector('.visual-area').innerHTML=visual(r);
+    document.querySelector('.answer-label').textContent='Сколько осталось в рамке?';
+    const answers=document.querySelector('.answers');answers.classList.remove('hidden');answers.querySelectorAll('.answer').forEach(b=>b.disabled=false);
+    document.querySelector('.hint-inline').innerHTML='<button class="hint-button" data-action="hint">Нужна подсказка?</button><div id="hintArea"></div>';
+  }
+  function markAnswer(value,btn){
+    if(state.locked)return;
+    const r=current();if(r.kind==='family' && r.variant>0 && !state.removed)return;
+    if(value!==r.answer){
+      state.mistakes++;btn.classList.add('wrong');
+      const feedback=document.getElementById('feedback');feedback.className='feedback caution';
+      feedback.textContent='Попробуй ещё. Смотри на целую группу, а не пересчитывай по одному.';
+      if(state.mistakes>=2&&!state.help&&r.kind==='mind'){state.help=true;document.querySelector('.visual-area').innerHTML=visual(r);const h=document.querySelector('.hint-button');if(h)h.textContent='Скрыть подсказку';document.getElementById('hintArea').innerHTML=hintContent(r);}
+      return;
+    }
+    state.correct++;state.locked=true;state.mistakes=0;playTone();
+    document.querySelector('.visual-area').innerHTML=visual(r);
+    document.querySelector('.equation').outerHTML=formula(r,true);
+    if(r.kind==='family')document.querySelector('.family-strip').outerHTML=familyStrip(r);
+    document.querySelector('.answer-label').textContent='Правильно!';
+    document.querySelectorAll('.answer').forEach(b=>{b.disabled=true;b.classList.toggle('right',Number(b.dataset.answer)===r.answer);b.classList.remove('wrong')});
+    document.querySelector('.hint-inline').innerHTML='';
+    const feedback=document.getElementById('feedback');feedback.className='feedback success';feedback.innerHTML=`<strong>Верно!</strong> ${successMessage(r)} <div class="talk">↗ Прочитай весь пример вслух.</div>`;
+    document.getElementById('nextArea').innerHTML='<button class="primary" data-action="next">Дальше →</button>';
+    document.querySelector('.track>div').style.width=`${state.correct/TOTAL*100}%`;
+  }
+  function next(){
+    if(!state.locked)return;
+    state.help=false;state.removed=false;state.locked=false;state.mistakes=0;
+    if(state.turn<state.rounds[state.stage].length-1)state.turn++;
+    else if(state.stage<STAGES.length-1){state.screen='between';render();return;}
+    else {state.screen='done';render();return;}
+    render();
+  }
+  function betweenHtml(){
+    const titles=['Ты видишь, сколько не хватает!','Ты передвигаешь число группой!','Ты умеешь складывать и вычитать!'];
+    const notes=['Теперь покажем те же пары на бусинах. Двигай всю группу одним действием.','У каждой пары есть ещё два примера на вычитание. Их можно увидеть на той же десятке.','Заключительный этап — те же пары без картинки.'];
+    return `<section class="panel stage-transition"><div class="celebration">✦</div><div class="tag">Этап ${state.stage+1} пройден · ${state.correct} из ${TOTAL}</div><h2>${titles[state.stage]}</h2><div class="learned">${PAIRS.map(a=>`<b>${a} + ${sum(a)}</b>`).join('')}</div><p>${notes[state.stage]}</p><button class="primary" data-action="continue">Перейти к этапу ${state.stage+2} →</button></section>`;
+  }
+  function doneHtml(){
+    return `<section class="panel done-view"><div class="celebration" aria-hidden="true">✦ ✿ ✦</div><div class="tag">Все 5 пар пройдены!</div><h1>Десятку умеем<br>собирать и разбирать!</h1><p>Ты выполнил <b>${TOTAL} заданий</b> и увидел, что один и тот же рисунок помогает и складывать, и вычитать.</p><div class="achievement"><span>✓ 5 + 5 → 9 + 1</span><span>✓ Добавили группой</span><span>✓ Убрали группой</span></div><div class="worked-families">${PAIRS.map(a=>{const b=sum(a);return `<div class="worked-family"><strong>${a} + ${b} = 10</strong><span>10 − ${b} = ${a}</span><span>10 − ${a} = ${b}</span></div>`}).join('')}</div><p class="final-note">Попробуй без подсказки назвать все пары от 5 + 5 до 9 + 1. На следующем занятии повтори коротко — сначала без рамки, потом с ней, если понадобится.</p><div style="display:flex;justify-content:center;gap:12px;flex-wrap:wrap;margin-top:24px"><button class="primary" data-action="start">Повторить сначала →</button><button class="secondary" data-action="menu">На главную</button></div></section>`;
+  }
+  function render(){
+    if(state.screen==='intro')main.innerHTML=startHtml();
+    else if(state.screen==='play')main.innerHTML=questionHtml();
+    else if(state.screen==='between')main.innerHTML=betweenHtml();
+    else main.innerHTML=doneHtml();
+  }
+  function start(){
+    state.screen='play';state.rounds=rounds();state.stage=0;state.turn=0;
+    state.correct=0;state.locked=false;state.removed=false;state.help=false;state.mistakes=0;
+    render();
+  }
+  function toggleHint(){
+    if(state.locked)return;
+    state.help=!state.help;const r=current();
+    document.getElementById('hintArea').innerHTML=state.help?hintContent(r):'';
+    document.querySelector('.hint-button').textContent=state.help?'Скрыть подсказку':'Нужна подсказка?';
+    if(r.kind==='mind')document.querySelector('.visual-area').innerHTML=visual(r);
+  }
+  function playTone(){
+    if(!state.sound)return;
+    try{
+      const Ctx=window.AudioContext||window.webkitAudioContext;if(!Ctx)return;
+      audio=audio||new Ctx();if(audio.state==='suspended')audio.resume();
+      const t=audio.currentTime;
+      [523.25,659.25].forEach((f,i)=>{
+        const o=audio.createOscillator(),g=audio.createGain();o.type='sine';o.frequency.value=f;
+        g.gain.setValueAtTime(.0001,t+i*.11);
+        g.gain.exponentialRampToValueAtTime(.07,t+i*.11+.025);
+        g.gain.exponentialRampToValueAtTime(.0001,t+i*.11+.2);
+        o.connect(g).connect(audio.destination);o.start(t+i*.11);o.stop(t+i*.11+.21);
+      });
+    }catch(e){}
+  }
+  main.addEventListener('click',e=>{
+    const answer=e.target.closest('[data-answer]');if(answer){markAnswer(Number(answer.dataset.answer),answer);return;}
+    const action=e.target.closest('[data-action]');if(!action)return;
+    switch(action.dataset.action){
+      case 'start':start();break;
+      case 'menu':state.screen='intro';render();break;
+      case 'next':next();break;
+      case 'remove':onRemove();break;
+      case 'hint':toggleHint();break;
+      case 'continue':state.stage++;state.turn=0;state.locked=false;state.removed=false;state.help=false;state.screen='play';render();break;
+    }
+  });
+  soundBtn.addEventListener('click',()=>{state.sound=!state.sound;soundBtn.textContent=state.sound?'♪ Звук: вкл.':'♪ Звук: выкл.';soundBtn.setAttribute('aria-pressed',String(state.sound));if(state.sound)playTone()});
+  fullBtn.addEventListener('click',()=>{try{if(!document.fullscreenElement)document.documentElement.requestFullscreen?.().catch(()=>{});else document.exitFullscreen?.().catch(()=>{});}catch(e){}});
+  render();
+})();
+</script>
+</body>
+</html>
